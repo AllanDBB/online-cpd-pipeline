@@ -3,6 +3,7 @@ Data processing script for loading time series and changepoints.
 """
 import pandas as pd
 import os
+import pickle
 
 # Paths to data
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -21,6 +22,8 @@ def load_series(noise_level):
     """Load time series for a given noise level."""
     path = os.path.join(DATA_DIR, SERIES_FILES[noise_level])
     df = pd.read_csv(path, header=None)
+    # Remove columns that are all NaN
+    # df = df.dropna(axis=1, how='any') Aquí hay un dilema, y es que, quitar los NaN puede alterar a relación de los CP.
     # First row is time index, rest are series
     time_index = df.iloc[0].values
     series = df.iloc[1:].reset_index(drop=True)
@@ -28,10 +31,11 @@ def load_series(noise_level):
 
 def load_changepoints(noise_level):
     """Load changepoints for a given noise level."""
-    import pickle
     path = os.path.join(DATA_DIR, CHGPOINT_FILES[noise_level])
     with open(path, 'rb') as f:
         changepoints = pickle.load(f)
+    # Convert np.int32 to int
+    changepoints = [[int(cp) for cp in serie_cps] for serie_cps in changepoints]
     return changepoints
 
 def load_all():

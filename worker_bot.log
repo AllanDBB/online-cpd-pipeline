@@ -1,0 +1,15 @@
+2025-08-13 17:03:03,780 - INFO - Cargando datos...
+2025-08-13 17:03:03,797 - INFO - Datos cargados exitosamente
+2025-08-13 17:04:45,483 - INFO - Cargando datos...
+2025-08-13 17:04:45,501 - INFO - Datos cargados exitosamente
+2025-08-13 17:04:45,502 - INFO - Worker Bot iniciado - Meta: 5 experimentos
+2025-08-13 17:04:45,508 - INFO - NUEVO RECORD! F1: 0.2717
+2025-08-13 17:04:45,509 - INFO - Parametros: {'threshold': 83.04267980106792, 'min_instances': 5, 'delta': 0.009843595809576337, 'delta_eval': 12}
+2025-08-13 17:04:45,614 - INFO - NUEVO RECORD! F1: 0.3370
+2025-08-13 17:04:45,615 - INFO - Parametros: {'threshold': 96.30815765183345, 'min_instances': 5, 'delta': 0.007932856497523616, 'delta_eval': 15}
+2025-08-13 17:04:45,937 - INFO - Progreso: 5/5 (100.0%) - Mejor F1: 0.3370
+2025-08-13 17:04:46,048 - INFO - Guardados 5 resultados. Total en archivo: 44
+2025-08-13 17:04:46,048 - INFO - Worker Bot completado!
+2025-08-13 17:04:46,049 - INFO - Tiempo total: 0.55 segundos
+2025-08-13 17:04:46,049 - INFO - Mejor F1 encontrado: 0.3370
+2025-08-13 17:04:46,049 - INFO - Mejores parametros: {'threshold': 96.30815765183345, 'min_instances': 5, 'delta': 0.007932856497523616, 'delta_eval': 15}
