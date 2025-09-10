@@ -63,7 +63,8 @@ def generate_synthetic_series_nsr(
     j = 0
 
     for i in range(n_points):
-        if j < n_changes and i == change_points[j]:
+        # usar len(change_points) por si el muestreo no alcanza n_changes
+        if j < len(change_points) and i == change_points[j]:
             slope += np.random.choice([-1, 1]) * slope_change
             level += np.random.choice([-1, 1]) * level_jump
             j += 1
@@ -158,6 +159,97 @@ def generate_dataset(
 
     return data
 
+
+def generate_balanced_dataset(
+    n_series_per_level: int = 300,
+    seed: int | None = None,
+    n_points_choices: List[int] | None = None,
+    n_changes_choices: List[int] | None = None,
+    nsr_ranges: Dict[str, Tuple[float, float]] | None = None,
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Genera un dataset balanceado por nivel de ruido y fuerza de cambio.
+
+    - Niveles de ruido (claves): 'fuerte', 'medio', 'suave' (se guardan en los mismos CSVs)
+    - Para cada nivel de ruido: genera exactamente n_series_per_level series
+      distribuidas equitativamente por fuerza de cambio: 1/3 'fuerte', 1/3 'medio', 1/3 'suave'.
+    - Para cada serie, n_points y n_changes se eligen aleatoriamente de listas provistas.
+    - nsr_target se muestrea uniformemente del rango provisto para el nivel de ruido.
+
+    Devuelve un dict con claves por nivel de ruido, cada uno con:
+      - 'time_index': np.ndarray (longitud = max(n_points) del nivel)
+      - 'series': pandas.DataFrame (filas=series, columnas=tiempo; padding con NaN si aplica)
+      - 'changepoints': lista de listas de enteros
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    if n_points_choices is None:
+        n_points_choices = [100, 200, 300]
+    if n_changes_choices is None:
+        n_changes_choices = [1, 2, 3, 4]
+    if nsr_ranges is None:
+        # Rango sugerido por usuario para cada nivel de ruido
+        nsr_ranges = {
+            'fuerte': (1.3, 45.0),     # ruido alto
+            'medio': (0.3, 1.3),       # ruido medio
+            'suave': (0.05, 0.3),      # ruido bajo (evitar 0 exacto)
+        }
+
+    strengths = ['fuerte', 'medio', 'suave']  # fuerza de cambio
+    per_strength = max(1, n_series_per_level // 3)
+
+    data: Dict[str, Dict[str, Any]] = {}
+
+    for noise_level in ['fuerte', 'medio', 'suave']:
+        series_list: List[np.ndarray] = []
+        changepoints_list: List[List[int]] = []
+        lengths: List[int] = []
+
+        low, high = nsr_ranges[noise_level]
+
+        # Distribuir equitativamente por fuerza de cambio
+        for chg_strength in strengths:
+            for i in range(per_strength):
+                # parametros aleatorios por serie
+                n_points = int(np.random.choice(n_points_choices))
+                n_changes = int(np.random.choice(n_changes_choices))
+                nsr_target = float(np.random.uniform(low, high))
+
+                s_seed = None if seed is None else int(
+                    seed + hash((noise_level, chg_strength, i)) % (2 ** 31)
+                )
+                series, _, cps = generate_synthetic_series_nsr(
+                    n_points=n_points,
+                    n_changes=n_changes,
+                    nsr_target=nsr_target,
+                    change_strength=chg_strength,
+                    seed=s_seed,
+                    plot=False,
+                )
+                series_list.append(series)
+                changepoints_list.append(cps)
+                lengths.append(n_points)
+
+        # Padding a la longitud maxima del nivel para tener DataFrame rectangular
+        max_len = max(lengths) if lengths else 0
+        padded = []
+        for s in series_list:
+            if s.size < max_len:
+                pad = np.full(max_len - s.size, np.nan)
+                padded.append(np.concatenate([s, pad]))
+            else:
+                padded.append(s)
+
+        df_series = pd.DataFrame(padded)
+        time_index = np.arange(max_len)
+        data[noise_level] = {
+            'time_index': time_index,
+            'series': df_series,
+            'changepoints': changepoints_list,
+        }
+
+    return data
 
 def save_dataset_to_disk(data: Dict[str, Dict[str, Any]], data_dir: str) -> None:
     """

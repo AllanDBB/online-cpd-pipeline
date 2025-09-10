@@ -39,6 +39,9 @@ def detect_changepoints_ewma(
     last_detect = -min_instances - 1
 
     for t, val in enumerate(x):
+        # Stop if we encounter padding / missing values
+        if np.isnan(val):
+            break
         if t == 0:
             # first sample already used to init
             mean_prev = ew_mean

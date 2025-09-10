@@ -10,7 +10,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 from src.split_train_test import split_train_test
-from src.synthetic_data_generator import generate_dataset, save_dataset_to_disk
+from src.synthetic_data_generator import generate_dataset, generate_balanced_dataset, save_dataset_to_disk
 from src.algorithms.page_hinkley import detect_changepoints_page_hinkley
 from src.algorithms.ewma import detect_changepoints_ewma
 from src.f1_score import f1_score_with_tolerance
@@ -20,36 +20,43 @@ import pandas as pd
 # Configuration via environment variables (easy to change without editing code)
 N_SERIES_PER_LEVEL = int(os.environ.get('N_SERIES_PER_LEVEL', '100'))
 N_POINTS = int(os.environ.get('N_POINTS', '500'))
-N_CHANGES = int(os.environ.get('N_CHANGES', '3'))
+N_CHANGES = int(os.environ.get('N_CHANGES', '9'))
 NSR_TARGET = float(os.environ.get('NSR_TARGET', '1.5'))
 SEED = int(os.environ.get('SEED', '42'))
 VERBOSE = os.environ.get('VERBOSE', '0') in ('1', 'true', 'True')
+N_TEST = int(os.environ.get('N_TEST', '1'))
+ALGS = [a.strip() for a in os.environ.get('ALGS', 'page_hinkley,ewma').split(',') if a.strip()]
 
-# Always use synthetic data
-data = generate_dataset(
+# Always use synthetic data (balanced by noise level and change strength)
+data = generate_balanced_dataset(
     n_series_per_level=N_SERIES_PER_LEVEL,
-    n_points=N_POINTS,
-    n_changes=N_CHANGES,
-    nsr_target=NSR_TARGET,
     seed=SEED,
+    n_points_choices=[100, 200, 300],
+    n_changes_choices=[1, 2, 3, 4],
+    nsr_ranges={
+        'fuerte': (1.3, 45.0),
+        'medio': (0.3, 1.3),
+        'suave': (0.05, 0.3),
+    },
 )
 # Persist generated data for reproducibility
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 save_dataset_to_disk(data, data_dir)
 
-split = split_train_test(data)
+split = split_train_test(data, n_test=N_TEST, seed=SEED)
 
 # Parameter grids (expandable) for each algorithm
 param_grids = {
     'page_hinkley': {
-        'thresholds': list(range(5, 101, 5)),
-        'min_instances': [5, 10, 20, 30, 50],
-        'deltas': [0.0005, 0.001, 0.002, 0.005, 0.01]
+        # Fast, minimal grid (override in code if needed)
+        'thresholds': [20, 50, 80],
+        'min_instances': [5, 20],
+        'deltas': [0.001, 0.005]
     },
     'ewma': {
-        'alphas': [0.02, 0.05, 0.1, 0.2, 0.3],
-        'thresholds': [1.5, 2.0, 2.5, 3.0, 4.0],
-        'min_instances': [1, 3, 5, 10]
+        'alphas': [0.05, 0.2],
+        'thresholds': [2.0, 3.0],
+        'min_instances': [5, 10]
     }
 }
 
@@ -209,7 +216,7 @@ def evaluate_on_test(algorithm_name: str, best_by_level: dict, best_global: dict
 all_results = []
 summaries = []
 
-for alg in ['page_hinkley', 'ewma']:
+for alg in ALGS:
     if VERBOSE:
         print(f"Grid search para: {alg} ... (esto puede tardar)")
     bests = grid_search_and_select_best(alg)
@@ -279,7 +286,7 @@ for s in summaries:
         'algorithm': alg,
         'fecha_evaluacion': fecha,
         'n_series_per_level': N_SERIES_PER_LEVEL,
-        'n_points': N_POINTS,
+        'n_points': 'mixed',
         'seed': SEED,
         'fuerte_ph_threshold': f_ph_t,
         'fuerte_ph_min_instances': f_ph_mi,
@@ -364,3 +371,31 @@ for r in rows_to_write:
     test_f1 = r.get('global_test_f1_avg')
     test_mttd = r.get('global_test_mttd_avg')
     print(f"{alg}: mejores globales -> {g}; test_f1_avg={test_f1}, test_mttd_avg={test_mttd}")
+
+# Summary by types (requested order): ph suave/medio/fuerte/global, ewma ...
+for alg in ALGS:
+    tag = 'ph' if alg == 'page_hinkley' else 'ewma'
+    alg_global_results = [x for x in all_results if x.get('algorithm') == alg and x.get('strategy') == 'global']
+
+    def _lvl_avg(level):
+        subset = [x for x in alg_global_results if x.get('level') == level]
+        f1_vals = [x['f1'] for x in subset if x.get('f1') is not None]
+        mttd_vals = [x['MTTD'] for x in subset if x.get('MTTD') is not None]
+        f1 = float(np.mean(f1_vals)) if f1_vals else None
+        mttd = float(np.mean(mttd_vals)) if mttd_vals else None
+        return f1, mttd
+
+    s_f1, s_mttd = _lvl_avg('suave')
+    m_f1, m_mttd = _lvl_avg('medio')
+    f_f1, f_mttd = _lvl_avg('fuerte')
+
+    # global averages across levels (already computed in rows_to_write, recompute here for simplicity)
+    f1_vals_all = [x['f1'] for x in alg_global_results if x.get('f1') is not None]
+    mttd_vals_all = [x['MTTD'] for x in alg_global_results if x.get('MTTD') is not None]
+    g_f1 = float(np.mean(f1_vals_all)) if f1_vals_all else None
+    g_mttd = float(np.mean(mttd_vals_all)) if mttd_vals_all else None
+
+    print(f"{tag} suave  -> f1={s_f1}, mttd={s_mttd}")
+    print(f"{tag} medio  -> f1={m_f1}, mttd={m_mttd}")
+    print(f"{tag} fuerte -> f1={f_f1}, mttd={f_mttd}")
+    print(f"{tag} global -> f1={g_f1}, mttd={g_mttd}")
