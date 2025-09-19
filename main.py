@@ -10,7 +10,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'src')))
 
 from src.split_train_test import split_train_test
-from src.synthetic_data_generator import generate_dataset, generate_balanced_dataset, save_dataset_to_disk
+from src.allan_synthetic import generate_dataset, save_dataset_to_disk
 from src.algorithms.page_hinkley import detect_changepoints_page_hinkley
 from src.algorithms.ewma import detect_changepoints_ewma
 from src.f1_score import f1_score_with_tolerance
@@ -27,23 +27,21 @@ VERBOSE = os.environ.get('VERBOSE', '0') in ('1', 'true', 'True')
 N_TEST = int(os.environ.get('N_TEST', '1'))
 ALGS = [a.strip() for a in os.environ.get('ALGS', 'page_hinkley,ewma').split(',') if a.strip()]
 
-# Always use synthetic data (balanced by noise level and change strength)
-data = generate_balanced_dataset(
+# Generate synthetic data using the new Allan-based generator (two noise levels: alto/bajo)
+TIPO_CAMBIO = os.environ.get('TIPO_CAMBIO', 'mixed')    # 'escalon' | 'pendiente' | 'mixed'
+data = generate_dataset(
     n_series_per_level=N_SERIES_PER_LEVEL,
     seed=SEED,
     n_points_choices=[100, 200, 300],
     n_changes_choices=[1, 2, 3, 4],
-    nsr_ranges={
-        'fuerte': (1.3, 45.0),
-        'medio': (0.3, 1.3),
-        'suave': (0.05, 0.3),
-    },
+    tipo_cambio=TIPO_CAMBIO,
 )
 # Persist generated data for reproducibility
 data_dir = os.path.join(os.path.dirname(__file__), 'data')
 save_dataset_to_disk(data, data_dir)
 
 split = split_train_test(data, n_test=N_TEST, seed=SEED)
+LEVELS = list(split.keys())  # e.g., ['alto', 'bajo']
 
 # Parameter grids (expandable) for each algorithm
 param_grids = {
@@ -81,7 +79,7 @@ def grid_search_and_select_best(algorithm_name: str):
         deltas = param_grids['page_hinkley']['deltas']
 
         # Per-level
-        for level in ['fuerte', 'medio', 'suave']:
+        for level in LEVELS:
             series_train = split[level]['train']['series']
             changepoints_train = split[level]['train']['changepoints']
             best_score = -np.inf
@@ -109,7 +107,7 @@ def grid_search_and_select_best(algorithm_name: str):
             for min_instances in min_instances_list:
                 for delta in deltas:
                     scores = []
-                    for level in ['fuerte', 'medio', 'suave']:
+                    for level in LEVELS:
                         series_train = split[level]['train']['series']
                         changepoints_train = split[level]['train']['changepoints']
                         for idx, serie in series_train.iterrows():
@@ -128,7 +126,7 @@ def grid_search_and_select_best(algorithm_name: str):
         thresholds = param_grids['ewma']['thresholds']
         min_instances_list = param_grids['ewma']['min_instances']
 
-        for level in ['fuerte', 'medio', 'suave']:
+        for level in LEVELS:
             series_train = split[level]['train']['series']
             changepoints_train = split[level]['train']['changepoints']
             best_score = -np.inf
@@ -153,7 +151,7 @@ def grid_search_and_select_best(algorithm_name: str):
             for threshold in thresholds:
                 for min_instances in min_instances_list:
                     scores = []
-                    for level in ['fuerte', 'medio', 'suave']:
+                    for level in LEVELS:
                         series_train = split[level]['train']['series']
                         changepoints_train = split[level]['train']['changepoints']
                         for idx, serie in series_train.iterrows():
@@ -175,7 +173,7 @@ def evaluate_on_test(algorithm_name: str, best_by_level: dict, best_global: dict
     results = []
 
     # strategy: per-level
-    for level in ['fuerte', 'medio', 'suave']:
+    for level in LEVELS:
         params = best_by_level.get(level)
         series_test = split[level]['test']['series']
         changepoints_test = split[level]['test']['changepoints']
@@ -190,7 +188,7 @@ def evaluate_on_test(algorithm_name: str, best_by_level: dict, best_global: dict
 
     # strategy: global
     params = best_global
-    for level in ['fuerte', 'medio', 'suave']:
+    for level in LEVELS:
         series_test = split[level]['test']['series']
         changepoints_test = split[level]['test']['changepoints']
         for idx, serie in series_test.iterrows():
@@ -230,16 +228,14 @@ csv_filename = 'resultados_algoritmos.csv'
 # Define a stable schema with 3 params per level and 3 for global (param meaning depends on algorithm)
 cols = [
     'algorithm', 'fecha_evaluacion', 'n_series_per_level', 'n_points', 'seed',
-    # Page-Hinkley per-level
-    'fuerte_ph_threshold', 'fuerte_ph_min_instances', 'fuerte_ph_delta', 'fuerte_ph_avg_f1_train',
-    'medio_ph_threshold', 'medio_ph_min_instances', 'medio_ph_delta', 'medio_ph_avg_f1_train',
-    'suave_ph_threshold', 'suave_ph_min_instances', 'suave_ph_delta', 'suave_ph_avg_f1_train',
+    # Page-Hinkley per-level (alto/bajo)
+    'alto_ph_threshold', 'alto_ph_min_instances', 'alto_ph_delta', 'alto_ph_avg_f1_train',
+    'bajo_ph_threshold', 'bajo_ph_min_instances', 'bajo_ph_delta', 'bajo_ph_avg_f1_train',
     # Page-Hinkley global
     'global_ph_threshold', 'global_ph_min_instances', 'global_ph_delta', 'global_ph_avg_f1_train',
-    # EWMA per-level
-    'fuerte_ewma_alpha', 'fuerte_ewma_threshold', 'fuerte_ewma_min_instances', 'fuerte_ewma_avg_f1_train',
-    'medio_ewma_alpha', 'medio_ewma_threshold', 'medio_ewma_min_instances', 'medio_ewma_avg_f1_train',
-    'suave_ewma_alpha', 'suave_ewma_threshold', 'suave_ewma_min_instances', 'suave_ewma_avg_f1_train',
+    # EWMA per-level (alto/bajo)
+    'alto_ewma_alpha', 'alto_ewma_threshold', 'alto_ewma_min_instances', 'alto_ewma_avg_f1_train',
+    'bajo_ewma_alpha', 'bajo_ewma_threshold', 'bajo_ewma_min_instances', 'bajo_ewma_avg_f1_train',
     # EWMA global
     'global_ewma_alpha', 'global_ewma_threshold', 'global_ewma_min_instances', 'global_ewma_avg_f1_train',
     # Test aggregates
@@ -264,13 +260,11 @@ for s in summaries:
             return (None, None, None, None)
         return (d.get('alpha'), d.get('threshold'), d.get('min_instances'), d.get('avg_f1_train'))
 
-    f_ph_t, f_ph_mi, f_ph_d, f_ph_avg = ph_triplet(best_by_level.get('fuerte', {}))
-    m_ph_t, m_ph_mi, m_ph_d, m_ph_avg = ph_triplet(best_by_level.get('medio', {}))
-    s_ph_t, s_ph_mi, s_ph_d, s_ph_avg = ph_triplet(best_by_level.get('suave', {}))
+    a_ph_t, a_ph_mi, a_ph_d, a_ph_avg = ph_triplet(best_by_level.get('alto', {}))
+    b_ph_t, b_ph_mi, b_ph_d, b_ph_avg = ph_triplet(best_by_level.get('bajo', {}))
 
-    f_ew_a, f_ew_t, f_ew_mi, f_ew_avg = ewma_triplet(best_by_level.get('fuerte', {}))
-    m_ew_a, m_ew_t, m_ew_mi, m_ew_avg = ewma_triplet(best_by_level.get('medio', {}))
-    s_ew_a, s_ew_t, s_ew_mi, s_ew_avg = ewma_triplet(best_by_level.get('suave', {}))
+    a_ew_a, a_ew_t, a_ew_mi, a_ew_avg = ewma_triplet(best_by_level.get('alto', {}))
+    b_ew_a, b_ew_t, b_ew_mi, b_ew_avg = ewma_triplet(best_by_level.get('bajo', {}))
 
     g_ph_t, g_ph_mi, g_ph_d, g_ph_avg = ph_triplet(best_global if alg == 'page_hinkley' else {})
     g_ew_a, g_ew_t, g_ew_mi, g_ew_avg = ewma_triplet(best_global if alg == 'ewma' else {})
@@ -288,34 +282,26 @@ for s in summaries:
         'n_series_per_level': N_SERIES_PER_LEVEL,
         'n_points': 'mixed',
         'seed': SEED,
-        'fuerte_ph_threshold': f_ph_t,
-        'fuerte_ph_min_instances': f_ph_mi,
-        'fuerte_ph_delta': f_ph_d,
-        'fuerte_ph_avg_f1_train': f_ph_avg,
-        'medio_ph_threshold': m_ph_t,
-        'medio_ph_min_instances': m_ph_mi,
-        'medio_ph_delta': m_ph_d,
-        'medio_ph_avg_f1_train': m_ph_avg,
-        'suave_ph_threshold': s_ph_t,
-        'suave_ph_min_instances': s_ph_mi,
-        'suave_ph_delta': s_ph_d,
-        'suave_ph_avg_f1_train': s_ph_avg,
+        'alto_ph_threshold': a_ph_t,
+        'alto_ph_min_instances': a_ph_mi,
+        'alto_ph_delta': a_ph_d,
+        'alto_ph_avg_f1_train': a_ph_avg,
+        'bajo_ph_threshold': b_ph_t,
+        'bajo_ph_min_instances': b_ph_mi,
+        'bajo_ph_delta': b_ph_d,
+        'bajo_ph_avg_f1_train': b_ph_avg,
         'global_ph_threshold': g_ph_t,
         'global_ph_min_instances': g_ph_mi,
         'global_ph_delta': g_ph_d,
         'global_ph_avg_f1_train': g_ph_avg,
-        'fuerte_ewma_alpha': f_ew_a,
-        'fuerte_ewma_threshold': f_ew_t,
-        'fuerte_ewma_min_instances': f_ew_mi,
-        'fuerte_ewma_avg_f1_train': f_ew_avg,
-        'medio_ewma_alpha': m_ew_a,
-        'medio_ewma_threshold': m_ew_t,
-        'medio_ewma_min_instances': m_ew_mi,
-        'medio_ewma_avg_f1_train': m_ew_avg,
-        'suave_ewma_alpha': s_ew_a,
-        'suave_ewma_threshold': s_ew_t,
-        'suave_ewma_min_instances': s_ew_mi,
-        'suave_ewma_avg_f1_train': s_ew_avg,
+        'alto_ewma_alpha': a_ew_a,
+        'alto_ewma_threshold': a_ew_t,
+        'alto_ewma_min_instances': a_ew_mi,
+        'alto_ewma_avg_f1_train': a_ew_avg,
+        'bajo_ewma_alpha': b_ew_a,
+        'bajo_ewma_threshold': b_ew_t,
+        'bajo_ewma_min_instances': b_ew_mi,
+        'bajo_ewma_avg_f1_train': b_ew_avg,
         'global_ewma_alpha': g_ew_a,
         'global_ewma_threshold': g_ew_t,
         'global_ewma_min_instances': g_ew_mi,
@@ -372,7 +358,7 @@ for r in rows_to_write:
     test_mttd = r.get('global_test_mttd_avg')
     print(f"{alg}: mejores globales -> {g}; test_f1_avg={test_f1}, test_mttd_avg={test_mttd}")
 
-# Summary by types (requested order): ph suave/medio/fuerte/global, ewma ...
+# Summary by noise levels (alto/bajo)
 for alg in ALGS:
     tag = 'ph' if alg == 'page_hinkley' else 'ewma'
     alg_global_results = [x for x in all_results if x.get('algorithm') == alg and x.get('strategy') == 'global']
@@ -385,17 +371,15 @@ for alg in ALGS:
         mttd = float(np.mean(mttd_vals)) if mttd_vals else None
         return f1, mttd
 
-    s_f1, s_mttd = _lvl_avg('suave')
-    m_f1, m_mttd = _lvl_avg('medio')
-    f_f1, f_mttd = _lvl_avg('fuerte')
+    b_f1, b_mttd = _lvl_avg('bajo')
+    a_f1, a_mttd = _lvl_avg('alto')
 
-    # global averages across levels (already computed in rows_to_write, recompute here for simplicity)
+    # global averages across levels
     f1_vals_all = [x['f1'] for x in alg_global_results if x.get('f1') is not None]
     mttd_vals_all = [x['MTTD'] for x in alg_global_results if x.get('MTTD') is not None]
     g_f1 = float(np.mean(f1_vals_all)) if f1_vals_all else None
     g_mttd = float(np.mean(mttd_vals_all)) if mttd_vals_all else None
 
-    print(f"{tag} suave  -> f1={s_f1}, mttd={s_mttd}")
-    print(f"{tag} medio  -> f1={m_f1}, mttd={m_mttd}")
-    print(f"{tag} fuerte -> f1={f_f1}, mttd={f_mttd}")
+    print(f"{tag} bajo -> f1={b_f1}, mttd={b_mttd}")
+    print(f"{tag} alto -> f1={a_f1}, mttd={a_mttd}")
     print(f"{tag} global -> f1={g_f1}, mttd={g_mttd}")
