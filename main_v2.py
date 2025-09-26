@@ -839,6 +839,7 @@ def main() -> None:
     datasets = build_datasets(config)
 
     results: List[Dict[str, Any]] = []
+    best_series_data: List[Dict[str, Any]] = []  # Array para guardar series is_best
 
     for (noise_key, strength_key, change_type), data in datasets.items():
         lengths = data["lengths"]
@@ -892,12 +893,14 @@ def main() -> None:
             for trial_id, record in enumerate(records):
                 summary = record["summary"] or {}
                 params = record["params"] or {}
+                is_best = trial_id == best_index
+                
                 results.append(
                     base_row
                     | {
                         "status": "ok",
                         "trial_id": trial_id,
-                        "is_best": trial_id == best_index,
+                        "is_best": is_best,
                         "params_json": json.dumps(params, sort_keys=True, default=float),
                         "f1_mean": summary.get("f1_mean"),
                         "precision_mean": summary.get("precision_mean"),
@@ -911,12 +914,57 @@ def main() -> None:
                         "series_count": summary.get("series_count"),
                     }
                 )
+                
+                # Guardar datos de series is_best para análisis estadístico
+                if is_best:
+                    best_series_entry = {
+                        "combo_key": f"{noise_key}_{strength_key}_{change_type}",
+                        "nivel_ruido": noise_key,
+                        "fuerza_cambio": strength_key,
+                        "tipo_cambio": change_type,
+                        "algorithm_key": spec.key,
+                        "algorithm_library": spec.library,
+                        "algorithm_method": spec.method,
+                        "params": params,
+                        "params_json": json.dumps(params, sort_keys=True, default=float),
+                        "performance_metrics": {
+                            "f1_mean": summary.get("f1_mean"),
+                            "precision_mean": summary.get("precision_mean"),
+                            "recall_mean": summary.get("recall_mean"),
+                            "mmd_mean": summary.get("mmd_mean"),
+                            "mttd_mean": summary.get("mttd_mean"),
+                            "detections_mean": summary.get("detections_mean"),
+                            "tp_mean": summary.get("tp_mean"),
+                            "fp_mean": summary.get("fp_mean"),
+                            "fn_mean": summary.get("fn_mean"),
+                            "series_count": summary.get("series_count"),
+                        },
+                        "dataset_info": {
+                            "series_evaluated": len(data["series"]),
+                            "series_avg_length": avg_length,
+                            "series_std_length": std_length,
+                        },
+                        "raw_series_data": {
+                            "series": [serie.tolist() for serie in data["series"]],
+                            "changepoints": data["changepoints"],
+                            "lengths": data["lengths"],
+                        },
+                        "timestamp": pd.Timestamp.now().isoformat(),
+                    }
+                    best_series_data.append(best_series_entry)
 
     df = pd.DataFrame(results)
     output_path = os.path.join(os.path.dirname(__file__), config["results_csv"])
     df.to_csv(output_path, index=False)
 
+    # Guardar array de series is_best para análisis estadístico
+    best_series_json_path = os.path.join(os.path.dirname(__file__), "best_series_analysis.json")
+    with open(best_series_json_path, 'w', encoding='utf-8') as f:
+        json.dump(best_series_data, f, ensure_ascii=False, indent=2, default=str)
+    
     print(f"Main 2 completado. Resultados guardados en: {output_path}")
+    print(f"Datos de series is_best guardados para análisis estadístico en: {best_series_json_path}")
+    print(f"Total de configuraciones is_best encontradas: {len(best_series_data)}")
 
     implemented_df = df[(df["status"] == "ok") & (df["is_best"])]
     if not implemented_df.empty:
