@@ -4,6 +4,7 @@ from __future__ import annotations
 import itertools
 import json
 import os
+import copy
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Iterable, List, Sequence
 
@@ -66,10 +67,11 @@ class AlgorithmSpec:
 
 CONFIG: Dict[str, Any] = {
     "seed": 123,
+    "profile": "quick",
     "n_iterations": 3,
-    "series_per_combo": 15,
-    "series_length_choices": [200, 300, 400],
-    "n_changes_range": (1, 4),
+    "series_per_combo": 50,
+    "series_length_choices": [200, 300, 400, 500, 600, 700, 800, 900, 1000],
+    "n_changes_range": (1, 10),
     "noise_levels": {
         "alto": (3.0, 6.0),
         "bajo": (0.0, 0.4),
@@ -213,7 +215,181 @@ CONFIG: Dict[str, Any] = {
     },
 }
 
+PROFILE_PRESETS: Dict[str, Dict[str, Any]] = {
+    "quick": {},
+    "extensive": {
+        "n_iterations": 3,
+        "series_per_combo": 15,
+        "series_length_choices": [300, 400, 500, 600],
+        "n_changes_range": (1, 6),
+        "algorithm_configs": {
+            "page_hinkley_river": {
+                "grid": {
+                    "threshold": [60, 80],
+                    "min_instances": [10, 40],
+                    "delta": [0.003],
+                }
+            },
+            "ewma_numpy": {
+                "grid": {
+                    "alpha": [0.15, 0.25],
+                    "threshold": [3.0],
+                    "min_instances": [15],
+                }
+            },
+            "changepoint_online_focus": {
+                "grid": {
+                    "penalty": [35.0],
+                    "min_size": [30],
+                    "jump": [2, 4],
+                }
+            },
+            "changepoint_online_gaussian": {
+                "grid": {
+                    "penalty": [40.0, 50.0],
+                    "min_size": [25, 35],
+                    "jump": [4],
+                }
+            },
+            "changepoint_online_np_focus": {
+                "grid": {
+                    "penalty": [35.0, 45.0],
+                    "width": [60, 80],
+                    "jump": [4],
+                }
+            },
+            "changepoint_online_md_focus": {
+                "grid": {
+                    "penalty": [40.0, 50.0],
+                    "min_size": [35],
+                    "jump": [2, 4],
+                }
+            },
+            "ocpdet_cumsum": {
+                "grid": {
+                    "threshold": [14.0],
+                    "drift": [0.2],
+                    "min_distance": [40],
+                }
+            },
+            "ocpdet_ewma": {
+                "grid": {
+                    "alpha": [0.25],
+                    "threshold": [3.5],
+                    "min_instances": [10, 15],
+                }
+            },
+            "ocpdet_two_sample_tests": {
+                "grid": {
+                    "window_size": [60],
+                    "step": [15],
+                    "alpha": [0.001],
+                    "min_distance": [40],
+                }
+            },
+            "ocpdet_neural_networks": {
+                "grid": {
+                    "window_size": [25],
+                    "step": [2],
+                    "hidden_layer_sizes": [(40, 20)],
+                    "threshold": [3.0],
+                    "min_distance": [40],
+                }
+            },
+            "ssm_canary": {
+                "grid": {
+                    "process_noise": [1e-4],
+                    "measurement_noise": [1.0],
+                    "threshold": [3.5],
+                    "min_distance": [35],
+                }
+            },
+            "tagi_lstm_ssm": {
+                "grid": {
+                    "process_noise": [1e-4],
+                    "measurement_noise": [0.5],
+                    "threshold": [3.3],
+                    "min_distance": [30],
+                    "adaptation": [2e-4],
+                }
+            },
+            "skf_kalman_canary": {
+                "grid": {
+                    "process_noise": [0.02],
+                    "measurement_noise": [1.2],
+                    "threshold": [3.8],
+                    "min_distance": [40],
+                }
+            },
+            "bayesian_online_cpd_cpfinder": {
+                "grid": {
+                    "hazard_lambda": [450.0],
+                    "alpha": [0.5],
+                    "beta": [0.1],
+                    "kappa": [3.0],
+                    "probability_threshold": [0.8],
+                    "min_distance": [35],
+                }
+            },
+            "changefinder_sdar": {
+                "grid": {
+                    "r": [0.2, 0.8],
+                    "order": [2, 3],
+                    "smooth": [11],
+                    "threshold": [3.5],
+                    "min_distance": [35],
+                }
+            },
+            "rulsif_roerich": {
+                "grid": {
+                    "window_size": [15],
+                    "lag_size": [80, 100],
+                    "step": [1, 3],
+                    "n_epochs": [3],
+                    "threshold": [0.18],
+                    "min_distance": [45],
+                    "alpha": [0.15],
+                }
+            },
+        },
+    },
+}
 
+
+def _merge_algorithm_grids(base_grid: Dict[str, Sequence[Any]], override_grid: Dict[str, Sequence[Any]]) -> Dict[str, List[Any]]:
+    merged: Dict[str, List[Any]] = {}
+    for key in set(base_grid) | set(override_grid):
+        base_vals = list(base_grid.get(key, []))
+        override_vals = list(override_grid.get(key, []))
+        combined: List[Any] = []
+        for val in base_vals + override_vals:
+            if val not in combined:
+                combined.append(val)
+        merged[key] = combined
+    return merged
+
+
+def load_config() -> Dict[str, Any]:
+    config = copy.deepcopy(CONFIG)
+    profile_name = config.get("profile", "quick")
+    config["profile"] = profile_name
+    overrides = PROFILE_PRESETS.get(profile_name, {})
+    for key, value in overrides.items():
+        if key == "algorithm_configs":
+            target = config.setdefault("algorithm_configs", {})
+            for alg_key, alg_overrides in value.items():
+                base_alg = target.setdefault(alg_key, {})
+                grid_override = alg_overrides.get("grid")
+                if grid_override:
+                    base_grid = base_alg.get("grid", {})
+                    base_alg["grid"] = _merge_algorithm_grids(base_grid, grid_override)
+                for other_key, other_value in alg_overrides.items():
+                    if other_key == "grid":
+                        continue
+                    base_alg[other_key] = other_value
+        else:
+            config[key] = value
+    return config
 ALGORITHM_TEMPLATES: List[Dict[str, Any]] = [
     {
         "key": "changepoint_online_focus",
@@ -658,7 +834,7 @@ def evaluate_algorithm_on_dataset(
 
 
 def main() -> None:
-    config = CONFIG
+    config = load_config()
     specs = build_algorithm_specs(config)
     datasets = build_datasets(config)
 
@@ -762,3 +938,12 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
