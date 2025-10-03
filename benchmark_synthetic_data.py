@@ -15,6 +15,7 @@ from src.synthetic_generator import generar_serie_sintetica
 from src.f1_score import f1_score_with_tolerance
 from src.mttd import mean_time_to_detection
 from src.mmd import maximum_mean_discrepancy
+from src.split_train_test import split_train_test_synthetic
 from src.algorithms.page_hinkley import detect_changepoints_page_hinkley
 from src.algorithms.adwin import detect_changepoints_adwin
 from src.algorithms.ewma import detect_changepoints_ewma
@@ -622,18 +623,27 @@ def build_datasets(config: Dict[str, Any]) -> Dict[tuple[str, str, str], Dict[st
 
 def evaluate_algorithm_on_dataset(
     spec: AlgorithmSpec,
-    dataset: Dict[str, Any],
+    train_data: Dict[str, Any],
+    test_data: Dict[str, Any],
     delta_eval: int,
 ) -> Dict[str, Any]:
+    """
+    Evaluate algorithm using train/test methodology:
+    1. Find best parameters on train set
+    2. Evaluate those parameters on test set
+    """
     records: List[Dict[str, Any]] = []
     best_index: int | None = None
-    best_score = -np.inf
-    best_mmd = np.inf
+    best_train_score = -np.inf
+    best_train_mmd = np.inf
 
+    # Phase 1: Grid search on TRAIN data to find best parameters
     for idx, params in enumerate(spec.iter_param_grid()):
-        per_series_metrics: List[Dict[str, Any]] = []
+        train_metrics: List[Dict[str, Any]] = []
+        test_metrics: List[Dict[str, Any]] = []
 
-        for serie, truth in zip(dataset["series"], dataset["changepoints"]):
+        # Evaluate on TRAIN set
+        for serie, truth in zip(train_data["series"], train_data["changepoints"]):
             serie_arr = np.asarray(serie, dtype=float)
             effective_length = max(_series_effective_length(serie_arr), 1)
             detected = spec.detect_fn(serie_arr, **params) if spec.detect_fn else []
@@ -642,7 +652,31 @@ def evaluate_algorithm_on_dataset(
             mmd_value = maximum_mean_discrepancy(truth, detected, effective_length)
             mttd_value = mean_time_to_detection(truth, detected, delta_eval)
 
-            per_series_metrics.append(
+            train_metrics.append(
+                {
+                    "f1": scores["f1"],
+                    "precision": scores["precision"],
+                    "recall": scores["recall"],
+                    "tp": scores["TP"],
+                    "fp": scores["FP"],
+                    "fn": scores["FN"],
+                    "mmd": mmd_value,
+                    "mttd": mttd_value,
+                    "detections": len(detected),
+                }
+            )
+        
+        # Evaluate on TEST set with same parameters
+        for serie, truth in zip(test_data["series"], test_data["changepoints"]):
+            serie_arr = np.asarray(serie, dtype=float)
+            effective_length = max(_series_effective_length(serie_arr), 1)
+            detected = spec.detect_fn(serie_arr, **params) if spec.detect_fn else []
+
+            scores = f1_score_with_tolerance(truth, detected, delta_eval)
+            mmd_value = maximum_mean_discrepancy(truth, detected, effective_length)
+            mttd_value = mean_time_to_detection(truth, detected, delta_eval)
+
+            test_metrics.append(
                 {
                     "f1": scores["f1"],
                     "precision": scores["precision"],
@@ -656,27 +690,45 @@ def evaluate_algorithm_on_dataset(
                 }
             )
 
-        summary = {
-            "f1_mean": _safe_mean(m["f1"] for m in per_series_metrics),
-            "precision_mean": _safe_mean(m["precision"] for m in per_series_metrics),
-            "recall_mean": _safe_mean(m["recall"] for m in per_series_metrics),
-            "mmd_mean": _safe_mean(m["mmd"] for m in per_series_metrics),
-            "mttd_mean": _safe_mean(m["mttd"] for m in per_series_metrics),
-            "detections_mean": _safe_mean(m["detections"] for m in per_series_metrics),
-            "tp_mean": _safe_mean(m["tp"] for m in per_series_metrics),
-            "fp_mean": _safe_mean(m["fp"] for m in per_series_metrics),
-            "fn_mean": _safe_mean(m["fn"] for m in per_series_metrics),
-            "series_count": len(per_series_metrics),
+        train_summary = {
+            "f1_mean": _safe_mean(m["f1"] for m in train_metrics),
+            "precision_mean": _safe_mean(m["precision"] for m in train_metrics),
+            "recall_mean": _safe_mean(m["recall"] for m in train_metrics),
+            "mmd_mean": _safe_mean(m["mmd"] for m in train_metrics),
+            "mttd_mean": _safe_mean(m["mttd"] for m in train_metrics),
+            "detections_mean": _safe_mean(m["detections"] for m in train_metrics),
+            "tp_mean": _safe_mean(m["tp"] for m in train_metrics),
+            "fp_mean": _safe_mean(m["fp"] for m in train_metrics),
+            "fn_mean": _safe_mean(m["fn"] for m in train_metrics),
+            "series_count": len(train_metrics),
+        }
+        
+        test_summary = {
+            "f1_mean": _safe_mean(m["f1"] for m in test_metrics),
+            "precision_mean": _safe_mean(m["precision"] for m in test_metrics),
+            "recall_mean": _safe_mean(m["recall"] for m in test_metrics),
+            "mmd_mean": _safe_mean(m["mmd"] for m in test_metrics),
+            "mttd_mean": _safe_mean(m["mttd"] for m in test_metrics),
+            "detections_mean": _safe_mean(m["detections"] for m in test_metrics),
+            "tp_mean": _safe_mean(m["tp"] for m in test_metrics),
+            "fp_mean": _safe_mean(m["fp"] for m in test_metrics),
+            "fn_mean": _safe_mean(m["fn"] for m in test_metrics),
+            "series_count": len(test_metrics),
         }
 
-        records.append({"params": params, "summary": summary})
+        records.append({
+            "params": params, 
+            "train_summary": train_summary,
+            "test_summary": test_summary
+        })
 
-        score = summary["f1_mean"] if summary["f1_mean"] is not None else -np.inf
-        mmd_score = summary["mmd_mean"] if summary["mmd_mean"] is not None else np.inf
+        # Select best parameters based on TRAIN performance
+        train_score = train_summary["f1_mean"] if train_summary["f1_mean"] is not None else -np.inf
+        train_mmd = train_summary["mmd_mean"] if train_summary["mmd_mean"] is not None else np.inf
 
-        if score > best_score or (score == best_score and mmd_score < best_mmd):
-            best_score = score
-            best_mmd = mmd_score
+        if train_score > best_train_score or (train_score == best_train_score and train_mmd < best_train_mmd):
+            best_train_score = train_score
+            best_train_mmd = train_mmd
             best_index = idx
 
     return {
@@ -703,6 +755,14 @@ def main() -> None:
         lengths = data["lengths"]
         avg_length = _safe_mean(lengths)
         std_length = float(np.std(lengths)) if lengths else None
+
+        # Split data into train/test (70/30)
+        split_data = split_train_test_synthetic(data, test_size=0.3, seed=config["seed"])
+        train_data = split_data["train"]
+        test_data = split_data["test"]
+        
+        print(f"\nProcessing: noise={noise_key}, strength={strength_key}, type={change_type}")
+        print(f"  Train: {len(train_data['series'])} series, Test: {len(test_data['series'])} series")
 
         # Crear identificador único para esta combinación de datos
         data_id = f"{noise_key}_{strength_key}_{change_type}"
@@ -736,7 +796,9 @@ def main() -> None:
                 "iterations": config["n_iterations"],
                 "series_per_iteration": config["series_per_combo"],
                 "delta_eval": config["delta_eval"],
-                "series_evaluated": len(data["series"]),
+                "series_total": len(data["series"]),
+                "series_train": len(train_data["series"]),
+                "series_test": len(test_data["series"]),
                 "series_avg_length": avg_length,
                 "series_std_length": std_length,
                 "notes": spec.notes,
@@ -751,43 +813,92 @@ def main() -> None:
                         "trial_id": None,
                         "is_best": False,
                         "params_json": "",
-                        "f1_mean": None,
-                        "precision_mean": None,
-                        "recall_mean": None,
-                        "mmd_mean": None,
-                        "mttd_mean": None,
-                        "detections_mean": None,
-                        "tp_mean": None,
-                        "fp_mean": None,
-                        "fn_mean": None,
+                        "train_f1_mean": None,
+                        "train_precision_mean": None,
+                        "train_recall_mean": None,
+                        "train_mmd_mean": None,
+                        "train_mttd_mean": None,
+                        "test_f1_mean": None,
+                        "test_precision_mean": None,
+                        "test_recall_mean": None,
+                        "test_mmd_mean": None,
+                        "test_mttd_mean": None,
                     }
                 )
                 continue
 
-            evaluation = evaluate_algorithm_on_dataset(spec, data, config["delta_eval"])
+            evaluation = evaluate_algorithm_on_dataset(spec, train_data, test_data, config["delta_eval"])
             records = evaluation["records"]
             best_index = evaluation["best_index"]
 
             for trial_id, record in enumerate(records):
-                summary = record["summary"] or {}
-                params = record["params"] or {}
+                train_summary = record.get("train_summary") or {}
+                test_summary = record.get("test_summary") or {}
+                params = record.get("params") or {}
+                is_best = trial_id == best_index
+                
+                # Para configuraciones is_best, guardar las series train/test usadas
+                best_series_file = None
+                if is_best:
+                    best_series_id = f"{data_id}_{spec.key}_trial{trial_id}"
+                    best_series_filename = f"best_series_{best_series_id}.json"
+                    best_series_path = os.path.join(series_dir, best_series_filename)
+                    
+                    best_series_data = {
+                        "metadata": {
+                            "nivel_ruido": noise_key,
+                            "fuerza_cambio": strength_key,
+                            "tipo_cambio": change_type,
+                            "algorithm_key": spec.key,
+                            "algorithm_library": spec.library,
+                            "algorithm_method": spec.method,
+                            "params": params,
+                            "train_f1_mean": train_summary.get("f1_mean"),
+                            "test_f1_mean": test_summary.get("f1_mean"),
+                        },
+                        "train": {
+                            "series": [serie.tolist() for serie in train_data["series"]],
+                            "changepoints": train_data["changepoints"],
+                            "lengths": train_data["lengths"]
+                        },
+                        "test": {
+                            "series": [serie.tolist() for serie in test_data["series"]],
+                            "changepoints": test_data["changepoints"],
+                            "lengths": test_data["lengths"]
+                        }
+                    }
+                    
+                    with open(best_series_path, 'w') as f:
+                        json.dump(best_series_data, f, indent=2)
+                    
+                    best_series_file = best_series_filename
+                
                 results.append(
                     base_row
                     | {
                         "status": "ok",
                         "trial_id": trial_id,
-                        "is_best": trial_id == best_index,
+                        "is_best": is_best,
                         "params_json": json.dumps(params, sort_keys=True, default=float),
-                        "f1_mean": summary.get("f1_mean"),
-                        "precision_mean": summary.get("precision_mean"),
-                        "recall_mean": summary.get("recall_mean"),
-                        "mmd_mean": summary.get("mmd_mean"),
-                        "mttd_mean": summary.get("mttd_mean"),
-                        "detections_mean": summary.get("detections_mean"),
-                        "tp_mean": summary.get("tp_mean"),
-                        "fp_mean": summary.get("fp_mean"),
-                        "fn_mean": summary.get("fn_mean"),
-                        "series_count": summary.get("series_count"),
+                        "train_f1_mean": train_summary.get("f1_mean"),
+                        "train_precision_mean": train_summary.get("precision_mean"),
+                        "train_recall_mean": train_summary.get("recall_mean"),
+                        "train_mmd_mean": train_summary.get("mmd_mean"),
+                        "train_mttd_mean": train_summary.get("mttd_mean"),
+                        "train_detections_mean": train_summary.get("detections_mean"),
+                        "train_tp_mean": train_summary.get("tp_mean"),
+                        "train_fp_mean": train_summary.get("fp_mean"),
+                        "train_fn_mean": train_summary.get("fn_mean"),
+                        "test_f1_mean": test_summary.get("f1_mean"),
+                        "test_precision_mean": test_summary.get("precision_mean"),
+                        "test_recall_mean": test_summary.get("recall_mean"),
+                        "test_mmd_mean": test_summary.get("mmd_mean"),
+                        "test_mttd_mean": test_summary.get("mttd_mean"),
+                        "test_detections_mean": test_summary.get("detections_mean"),
+                        "test_tp_mean": test_summary.get("tp_mean"),
+                        "test_fp_mean": test_summary.get("fp_mean"),
+                        "test_fn_mean": test_summary.get("fn_mean"),
+                        "best_series_file": best_series_file,  # Nueva columna
                     }
                 )
 
@@ -802,22 +913,38 @@ def main() -> None:
     
     df.to_csv(output_path, index=False)
 
-    print(f"Benchmark on synthetic data completed. Results saved to: {output_path}")
+    print(f"\nBenchmark on synthetic data completed. Results saved to: {output_path}")
+    print(f"Total evaluations: {len(df)}")
+    print(f"Using Train/Test methodology (70/30 split)")
+    
+    # Count best configurations with saved series
+    best_count = len(df[df["is_best"] == True])
+    print(f"Best configurations found: {best_count}")
+    print(f"Series for best configurations saved in: {series_dir}/")
 
     implemented_df = df[(df["status"] == "ok") & (df["is_best"])]
     if not implemented_df.empty:
-        implemented_df = implemented_df.sort_values(by="f1_mean", ascending=False)
+        implemented_df = implemented_df.sort_values(by="test_f1_mean", ascending=False)
         summary_cols = [
             "nivel_ruido",
             "fuerza_cambio",
             "tipo_cambio",
             "algorithm_key",
-            "f1_mean",
-            "mmd_mean",
+            "train_f1_mean",
+            "test_f1_mean",
+            "test_mmd_mean",
             "params_json",
         ]
-        print("Top resultados por F1 (mejor configuracion por combinacion):")
+        print("\nTop results by TEST F1 score (best configuration per combination):")
         print(implemented_df[summary_cols].head(10).to_string(index=False))
+        
+        # Show train vs test comparison
+        print("\n=== Train vs Test Performance Comparison ===")
+        for idx, row in implemented_df.head(10).iterrows():
+            train_f1 = row.get("train_f1_mean", 0) or 0
+            test_f1 = row.get("test_f1_mean", 0) or 0
+            diff = train_f1 - test_f1
+            print(f"{row['algorithm_key']:30} | Train F1: {train_f1:.3f} | Test F1: {test_f1:.3f} | Diff: {diff:+.3f}")
     else:
         print("No se obtuvieron resultados para los algoritmos evaluados.")
 
