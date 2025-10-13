@@ -15,6 +15,7 @@ from contextlib import contextmanager
 
 import numpy as np
 import pandas as pd
+from scipy.signal import savgol_filter
 
 from src.f1_score import f1_score_with_tolerance
 from src.mttd import mean_time_to_detection
@@ -44,6 +45,207 @@ from src.algorithms.changefinder_detector import detect_changepoints_changefinde
 from src.algorithms.rulsif_detector import detect_changepoints_rulsif
 
 DetectorFn = Callable[..., List[int]]
+
+
+# ============================================================================
+# FUNCIONES DE CLASIFICACIÓN DE SERIES (del notebook generateSynthetic.ipynb)
+# ============================================================================
+
+def estimar_ruido(serie, metric="NSR"):
+    """
+    Estima el nivel de ruido de una serie usando SNR o NSR.
+    Ajusta automáticamente el window_length según la longitud de la serie.
+    Usa polyorder=2 como valor fijo y genérico.
+    
+    Parámetros:
+    -----------
+    serie : array-like
+        Serie de tiempo (list o numpy array).
+    metric : str
+        'SNR' para signal-to-noise ratio
+        'NSR' para noise-to-signal ratio
+    
+    Retorna:
+    --------
+    valor : float
+        Estimación del ruido en escala SNR o NSR.
+    """
+    serie = np.array(serie)
+    n = len(serie)
+
+    # Elegir window_length adaptativo (impar, al menos 5)
+    window_length = max(5, n // 20)  # regla: 5% del tamaño de la serie
+    if window_length % 2 == 0:  
+        window_length += 1  # debe ser impar
+    
+    polyorder = 2  # valor fijo recomendado
+    
+    # Señal suavizada
+    señal = savgol_filter(serie, window_length=window_length, polyorder=polyorder)
+    ruido = serie - señal
+    
+    # Potencias (varianzas)
+    var_signal = np.var(señal)
+    var_noise = np.var(ruido)
+    
+    if metric.upper() == "SNR":
+        if var_noise == 0:
+            return np.inf
+        return var_signal / var_noise
+    
+    elif metric.upper() == "NSR":
+        if var_signal == 0:
+            return np.inf
+        return var_noise / var_signal
+    
+    else:
+        raise ValueError("metric debe ser 'SNR' o 'NSR'")
+
+
+def estimar_cambio(serie, puntos_cambio):
+    """
+    Estima la magnitud de cambio de una serie a partir de puntos de cambio dados.
+
+    Parámetros:
+    -----------
+    serie : array-like
+        Serie de tiempo (list o numpy array).
+    puntos_cambio : list of int
+        Lista con los índices donde ocurren los cambios.
+
+    Retorna:
+    --------
+    magnitud_min : float
+        La menor magnitud de cambio detectada.
+    magnitudes : list
+        Lista con las magnitudes de cada cambio.
+    """
+    serie = np.array(serie)
+    puntos = sorted([0] + puntos_cambio + [len(serie)])  # incluir inicio y final
+    
+    magnitudes = []
+    for i in range(1, len(puntos)-1):  # comparamos segmentos consecutivos
+        seg_anterior = serie[puntos[i-1]:puntos[i]]
+        seg_actual = serie[puntos[i]:puntos[i+1]]
+        
+        if len(seg_anterior) > 0 and len(seg_actual) > 0:
+            magnitud = abs(np.mean(seg_actual) - np.mean(seg_anterior))
+            magnitudes.append(magnitud)
+    
+    magnitud_min = min(magnitudes) if magnitudes else 0
+    return magnitud_min, magnitudes
+
+
+def clasificar_series_reales(datasets: List[Dict[str, Any]]) -> pd.DataFrame:
+    """
+    Clasifica series de criminalidad (datos reales) basándose en ruido y magnitud de cambio.
+    
+    Retorna categorías descriptivas en lugar de números.
+    
+    Parámetros:
+    -----------
+    datasets : list of dict
+        Lista de diccionarios con información de series reales.
+        Cada dict debe tener: 'series', 'changepoints', 'filename', 'metadata'
+    
+    Retorna:
+    --------
+    resultados : pd.DataFrame
+        DataFrame con columnas: filename, serie_id, ruido, cambio, categoria_ruido, categoria_cambio, tipo_cambio
+    """
+    resultados = []
+    
+    for dataset in datasets:
+        serie = dataset['series']
+        puntos = dataset['changepoints']
+        filename = dataset.get('filename', 'unknown')
+        serie_id = dataset.get('series_id', 0)
+        metadata = dataset.get('metadata', {})
+        
+        # Extraer tipos de changepoint del metadata
+        changepoint_types = metadata.get('changepoint_types', [])
+        # Determinar tipo de cambio predominante (escalón o pendiente)
+        tipo_cambio = 'sin_cambio'
+        if changepoint_types:
+            # Contar tipos
+            tipo_cambio_list = [str(ct).lower() for ct in changepoint_types if ct and str(ct).strip()]
+            if tipo_cambio_list:
+                # Si hay escalón, marcarlo como escalón, sino pendiente
+                if any('escalon' in t or 'step' in t or 'abrupt' in t for t in tipo_cambio_list):
+                    tipo_cambio = 'escalon'
+                elif any('pendiente' in t or 'trend' in t or 'gradual' in t for t in tipo_cambio_list):
+                    tipo_cambio = 'pendiente'
+                else:
+                    # Si no se puede determinar, usar el primero
+                    tipo_cambio = tipo_cambio_list[0] if tipo_cambio_list else 'desconocido'
+        
+        # --- estandarización ---
+        mu, sigma = np.mean(serie), np.std(serie)
+        serie_std = (serie - mu) / sigma if sigma > 0 else serie - mu
+        
+        # --- ruido (NSR) ---
+        try:
+            ruido = estimar_ruido(serie_std, metric="NSR")
+        except Exception as e:
+            print(f"  WARNING: No se pudo estimar ruido para {filename}: {e}")
+            ruido = np.nan
+        
+        # --- cambios ---
+        try:
+            cambio_min, magnitudes = estimar_cambio(serie_std, puntos)
+        except Exception as e:
+            print(f"  WARNING: No se pudo estimar cambio para {filename}: {e}")
+            cambio_min = np.nan
+        
+        resultados.append({
+            "filename": filename,
+            "serie_id": serie_id,
+            "annotator": dataset.get('annotator', 'unknown'),
+            "ruido": ruido,
+            "cambio": cambio_min,
+            "tipo_cambio": tipo_cambio,
+            "length": len(serie),
+            "n_changepoints": len(puntos),
+        })
+    
+    df_resultados = pd.DataFrame(resultados)
+    
+    # Clasificar usando umbrales (medianas) solo de valores válidos
+    df_valid = df_resultados.dropna(subset=['ruido', 'cambio'])
+    
+    if len(df_valid) > 0:
+        umbral_ruido = df_valid['ruido'].median()
+        umbral_cambio = df_valid['cambio'].median()
+        
+        # Asignar categorías descriptivas
+        def asignar_categoria_ruido(row):
+            if pd.isna(row['ruido']):
+                return None
+            return 'alto' if row['ruido'] > umbral_ruido else 'bajo'
+        
+        def asignar_categoria_cambio(row):
+            if pd.isna(row['cambio']):
+                return None
+            return 'alto' if row['cambio'] > umbral_cambio else 'bajo'
+        
+        df_resultados['categoria_ruido'] = df_resultados.apply(asignar_categoria_ruido, axis=1)
+        df_resultados['categoria_cambio'] = df_resultados.apply(asignar_categoria_cambio, axis=1)
+        
+        # Agregar info de umbrales usados
+        df_resultados.attrs['umbral_ruido'] = umbral_ruido
+        df_resultados.attrs['umbral_cambio'] = umbral_cambio
+    else:
+        df_resultados['categoria_ruido'] = None
+        df_resultados['categoria_cambio'] = None
+        df_resultados.attrs['umbral_ruido'] = None
+        df_resultados.attrs['umbral_cambio'] = None
+    
+    return df_resultados
+
+
+# ============================================================================
+# FIN DE FUNCIONES DE CLASIFICACIÓN
+# ============================================================================
 
 
 @dataclass
@@ -722,7 +924,71 @@ def main() -> None:
         print("No real data found. Exiting.")
         return
 
-    # Split data into train/test (80/20)
+    # Clasificar todas las series antes del split
+    print("\n=== Clasificando series de criminalidad ===")
+    clasificacion_df = clasificar_series_reales(datasets)
+    
+    # Mostrar estadísticas de clasificación
+    print(f"Total de series clasificadas: {len(clasificacion_df)}")
+    print(f"Series válidas: {clasificacion_df['categoria_ruido'].notna().sum()}")
+    
+    # Distribución por tipo de cambio
+    tipo_cambio_counts = clasificacion_df['tipo_cambio'].value_counts()
+    print(f"\n📊 Distribución por tipo de cambio:")
+    for tipo_cambio, count in tipo_cambio_counts.items():
+        print(f"  {tipo_cambio}: {count} series")
+    
+    # Distribución por categoría de ruido
+    ruido_counts = clasificacion_df['categoria_ruido'].value_counts()
+    print(f"\n🔊 Distribución por nivel de ruido:")
+    for cat, count in ruido_counts.items():
+        if pd.notna(cat):
+            print(f"  Ruido {cat}: {count} series")
+    
+    # Distribución por categoría de cambio
+    cambio_counts = clasificacion_df['categoria_cambio'].value_counts()
+    print(f"\n📈 Distribución por magnitud de cambio:")
+    for cat, count in cambio_counts.items():
+        if pd.notna(cat):
+            print(f"  Cambio {cat}: {count} series")
+    
+    # Tabla cruzada de categorías
+    if clasificacion_df['categoria_ruido'].notna().any() and clasificacion_df['categoria_cambio'].notna().any():
+        print(f"\n📋 Tabla cruzada (Ruido x Cambio):")
+        tabla_cruzada = pd.crosstab(
+            clasificacion_df['categoria_ruido'], 
+            clasificacion_df['categoria_cambio'],
+            margins=True
+        )
+        print(tabla_cruzada)
+    
+    if clasificacion_df.attrs.get('umbral_ruido') is not None:
+        print(f"\n🎯 Umbrales utilizados:")
+        print(f"  Ruido (NSR): {clasificacion_df.attrs['umbral_ruido']:.4f}")
+        print(f"  Cambio: {clasificacion_df.attrs['umbral_cambio']:.4f}")
+    
+    print(f"\n📊 Estadísticas por combinación:")
+    # Agrupar por combinación de categorías
+    if 'categoria_ruido' in clasificacion_df.columns and 'categoria_cambio' in clasificacion_df.columns:
+        for (cat_ruido, cat_cambio), group in clasificacion_df.groupby(['categoria_ruido', 'categoria_cambio']):
+            if pd.notna(cat_ruido) and pd.notna(cat_cambio):
+                print(f"\n  Ruido {cat_ruido} + Cambio {cat_cambio}: {len(group)} series")
+                print(f"    Ruido promedio (NSR): {group['ruido'].mean():.4f}")
+                print(f"    Cambio promedio: {group['cambio'].mean():.4f}")
+                print(f"    Longitud promedio: {group['length'].mean():.1f}")
+                print(f"    Changepoints promedio: {group['n_changepoints'].mean():.1f}")
+                # Mostrar distribución de tipo_cambio en este grupo
+                tipo_cambio_en_grupo = group['tipo_cambio'].value_counts()
+                print(f"    Tipos de cambio: {dict(tipo_cambio_en_grupo)}")
+    
+    # Guardar clasificación en CSV
+    timestamp = datetime.now().strftime("%m-%d-%Y")
+    clasificacion_filename = f"{timestamp}-clasificacion_series_criminalidad.csv"
+    clasificacion_path = os.path.join(os.path.dirname(__file__), clasificacion_filename)
+    clasificacion_df.to_csv(clasificacion_path, index=False)
+    print(f"\nClasificación guardada en: {clasificacion_filename}")
+
+    # Split data into train/test (50/50)
     split_data = train_test_split_real_data(datasets, test_size=0.5, seed=config["seed"])
     train_datasets = split_data['train']
     test_datasets = split_data['test']
@@ -831,6 +1097,21 @@ def main() -> None:
             }
         )
         
+        # Agregar info de clasificación a resultados detallados por serie
+        test_results_with_classification = []
+        for test_result in test_evaluation.get("per_series", []):
+            filename = test_result.get("filename", "")
+            # Buscar clasificación de esta serie
+            clasificacion_serie = clasificacion_df[clasificacion_df['filename'] == filename]
+            if not clasificacion_serie.empty:
+                row = clasificacion_serie.iloc[0]
+                test_result['clasificacion_ruido'] = float(row['ruido']) if pd.notna(row['ruido']) else None
+                test_result['clasificacion_cambio'] = float(row['cambio']) if pd.notna(row['cambio']) else None
+                test_result['clasificacion_categoria_ruido'] = str(row['categoria_ruido']) if pd.notna(row['categoria_ruido']) else None
+                test_result['clasificacion_categoria_cambio'] = str(row['categoria_cambio']) if pd.notna(row['categoria_cambio']) else None
+                test_result['clasificacion_tipo_cambio'] = str(row['tipo_cambio']) if pd.notna(row['tipo_cambio']) else None
+            test_results_with_classification.append(test_result)
+        
         # Guardar datos de series is_best para análisis estadístico (solo mejores configuraciones)
         best_series_entry = {
             "combo_key": f"real_data_all_{spec.key}",
@@ -868,7 +1149,16 @@ def main() -> None:
                 "total_train_changepoints": sum(d['n_changepoints'] for d in train_datasets),
                 "total_test_changepoints": sum(d['n_changepoints'] for d in test_datasets),
             },
-            "detailed_test_results": test_evaluation.get("per_series", []),
+            "clasificacion_info": {
+                "total_series": len(clasificacion_df),
+                "series_clasificadas": int(clasificacion_df['categoria_ruido'].notna().sum()),
+                "distribucion_tipo_cambio": clasificacion_df['tipo_cambio'].value_counts().to_dict(),
+                "distribucion_categoria_ruido": clasificacion_df['categoria_ruido'].value_counts().to_dict(),
+                "distribucion_categoria_cambio": clasificacion_df['categoria_cambio'].value_counts().to_dict(),
+                "umbral_ruido": clasificacion_df.attrs.get('umbral_ruido'),
+                "umbral_cambio": clasificacion_df.attrs.get('umbral_cambio'),
+            },
+            "detailed_test_results": test_results_with_classification,
             "timestamp": pd.Timestamp.now().isoformat(),
         }
         best_series_data.append(best_series_entry)
@@ -895,9 +1185,42 @@ def main() -> None:
     with open(best_series_json_path, 'w', encoding='utf-8') as f:
         json.dump(best_series_data, f, ensure_ascii=False, indent=2, default=str)
 
-    print(f"Benchmark on real data completed. Results saved to: {output_path}")
+    print(f"\nBenchmark on real data completed. Results saved to: {output_path}")
     print(f"Best series data saved for statistical analysis to: {best_series_json_path}")
     print(f"Total de configuraciones is_best encontradas: {len(best_series_data)}")
+
+    # Análisis de rendimiento por tipo de serie
+    print("\n" + "="*80)
+    print(" "*20 + "ANÁLISIS POR TIPO DE SERIE")
+    print("="*80)
+    
+    # Agregar análisis por categoría de serie desde best_series_data
+    for best_entry in best_series_data:
+        detailed_results = best_entry.get('detailed_test_results', [])
+        if not detailed_results:
+            continue
+        
+        # Agrupar por combinación de categorías
+        resultados_por_categoria = {}
+        for result in detailed_results:
+            cat_ruido = result.get('clasificacion_categoria_ruido')
+            cat_cambio = result.get('clasificacion_categoria_cambio')
+            tipo_cambio = result.get('clasificacion_tipo_cambio')
+            
+            if cat_ruido and cat_cambio:
+                key = f"{cat_ruido}_ruido_{cat_cambio}_cambio"
+                if key not in resultados_por_categoria:
+                    resultados_por_categoria[key] = []
+                resultados_por_categoria[key].append(result)
+        
+        if resultados_por_categoria:
+            print(f"\nAlgoritmo: {best_entry['algorithm_key']}")
+            for categoria, series_list in sorted(resultados_por_categoria.items()):
+                f1_scores = [s['f1'] for s in series_list if s.get('f1') is not None]
+                if f1_scores:
+                    # Formatear el nombre de la categoría para que sea legible
+                    cat_name = categoria.replace('_', ' ').title()
+                    print(f"  {cat_name:30s}: {len(series_list):2d} series | F1 promedio: {np.mean(f1_scores):.3f}")
 
     # Show top results (based on test performance)
     implemented_df = df[df["status"] == "ok"]
