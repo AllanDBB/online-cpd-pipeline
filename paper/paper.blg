@@ -1,0 +1,51 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: paper.aux
+Reallocating 'name_of_file' (item size: 1) to 17 items.
+The style file: Definitions/mdpi.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--empty journal in namoano2019online
+Warning--empty journal in chen2016general
+You've used 27 entries,
+            2887 wiz_defined-function locations,
+            731 strings with 9554 characters,
+and the built_in function-call counts, 12079 in all, are:
+= -- 1068
+> -- 750
+< -- 17
++ -- 327
+- -- 200
+* -- 1001
+:= -- 1798
+add.period$ -- 87
+call.type$ -- 27
+change.case$ -- 27
+chr.to.int$ -- 27
+cite$ -- 29
+duplicate$ -- 567
+empty$ -- 941
+format.name$ -- 266
+if$ -- 2587
+int.to.chr$ -- 1
+int.to.str$ -- 27
+missing$ -- 27
+newline$ -- 140
+num.names$ -- 81
+pop$ -- 302
+preamble$ -- 0
+purify$ -- 27
+quote$ -- 0
+skip$ -- 379
+stack$ -- 0
+substring$ -- 591
+swap$ -- 150
+text.length$ -- 8
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 189
+warning$ -- 2
+while$ -- 104
+width$ -- 0
+write$ -- 332
+(There were 2 warnings)

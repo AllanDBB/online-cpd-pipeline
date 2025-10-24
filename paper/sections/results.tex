@@ -10,9 +10,9 @@ We evaluated 17 online change point detection algorithms across three comprehens
 
 Figure~\ref{fig:top_algorithms} compares the top-performing algorithms on synthetic versus real-world data, revealing strong correlation between synthetic performance and real-world effectiveness. Table~\ref{tab:synthetic_overall} provides detailed metrics for the top 10 algorithms averaged across all 8 synthetic scenarios.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_top_algorithms_comparison.png}
+\includegraphics[width=\textwidth]{figures/fig_top_algorithms_comparison.pdf}
 \caption{Performance comparison of top 10 algorithms on synthetic vs real crime data. Algorithms that perform well on synthetic scenarios generally maintain competitive performance on real data, validating the synthetic benchmark design.}
 \label{fig:top_algorithms}
 \end{figure}
@@ -47,9 +47,9 @@ Figure~\ref{fig:top_algorithms} compares the top-performing algorithms on synthe
 
 Beyond F1 score, comprehensive algorithm evaluation requires examining multiple performance dimensions. Figure~\ref{fig:radar_metrics} presents a radar chart comparing the top 5 algorithms across five metrics: F1, Precision, Recall, MMD (inverted, lower is better), and MTTD (inverted, faster is better).
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/fig_radar_metrics.png}
+\includegraphics[width=0.85\textwidth]{figures/fig_radar_metrics.pdf}
 \caption{Multi-metric performance profile of top 5 algorithms. SSM-Canary shows balanced performance across all metrics, while Gaussian Segmentation excels in recall-oriented scenarios. TAGI-LSTM demonstrates superior temporal modeling (low MTTD).}
 \label{fig:radar_metrics}
 \end{figure}
@@ -61,9 +61,9 @@ Beyond F1 score, comprehensive algorithm evaluation requires examining multiple 
 
 Not all change point detection scenarios are equally challenging. Figure~\ref{fig:scenario_difficulty} visualizes F1 score distributions across the 8 synthetic scenarios, ordered by median difficulty. Table~\ref{tab:scenario_matrix} summarizes the best-performing algorithm for each scenario.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_scenario_difficulty.png}
+\includegraphics[width=\textwidth]{figures/fig_scenario_difficulty.pdf}
 \caption{F1 score distributions across synthetic scenarios. Low-noise scenarios (left) show significantly higher median F1 and tighter distributions, while high-noise scenarios (right) exhibit lower performance and greater variability across algorithms.}
 \label{fig:scenario_difficulty}
 \end{figure}
@@ -89,16 +89,16 @@ Low & Low & Slope & ocpdet\_two\_sample\_tests & 0.467 & 0.140 & 0.116 \\
 \end{tabular}
 \end{table}
 
-\textbf{Difficulty Gradient:} Low-noise, high-magnitude step changes are easiest (F1=1.0 achievable), while high-noise, low-magnitude scenarios are most challenging (best F1≈0.32). SSM-Canary dominates low-noise scenarios, while Two-Sample Tests excel in high-noise conditions.
+\textbf{Difficulty Gradient:} Low-noise, high-magnitude step changes are easiest (F1=1.0 achievable), while high-noise, low-magnitude scenarios are most challenging (best F1$\approx$0.32). SSM-Canary dominates low-noise scenarios, while Two-Sample Tests excel in high-noise conditions.
 
 
 \subsubsection{Algorithm-Scenario Performance Heatmap}
 
 Figure~\ref{fig:scenario_heatmap} provides a comprehensive view of how each top algorithm performs across all scenarios, revealing algorithm-specific strengths and weaknesses.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/fig_scenario_heatmap.png}
+\includegraphics[width=\textwidth]{figures/fig_scenario_heatmap.pdf}
 \caption{Performance heatmap showing F1 scores for top 15 algorithms across 8 synthetic scenarios. Darker green indicates better performance. SSM-Canary shows exceptional performance in low-noise scenarios (right columns), while Two-Sample Tests maintain stable performance across noise levels.}
 \label{fig:scenario_heatmap}
 \end{figure}
@@ -196,10 +196,10 @@ This benchmark evaluates whether hyperparameters optimized on synthetic data tra
 
 Figure~\ref{fig:transfer_scatter} visualizes transfer learning success and failure cases by plotting synthetic F1 scores against transferred F1 scores on real data. Points near the diagonal indicate successful parameter transfer.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{figures/fig_transfer_learning_scatter.png}
-\caption{Transfer learning performance scatter plot. Each point represents an algorithm, colored by transfer success (green: Δ≥-0.05, orange: moderate degradation, red: severe failure). The diagonal line represents perfect transfer. Correlation r=0.711 indicates moderate predictive power of synthetic performance for transfer success.}
+\includegraphics[width=0.9\textwidth]{figures/fig_transfer_learning_scatter.pdf}
+\caption{Transfer learning performance scatter plot. Each point represents an algorithm, colored by transfer success (green: $\Delta \geq -0.05$, orange: moderate degradation, red: severe failure). The diagonal line represents perfect transfer. Correlation r=0.711 indicates moderate predictive power of synthetic performance for transfer success.}
 \label{fig:transfer_scatter}
 \end{figure}
 
@@ -272,6 +272,8 @@ Temporal Dependencies & SSM-Canary & Best state-space model \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+
 
 
 
