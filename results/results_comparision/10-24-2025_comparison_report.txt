@@ -1,0 +1,119 @@
+================================================================================
+                    COMPARISON REPORT
+               Grid Search vs Transfer Learning
+================================================================================
+
+EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+
+Total algorithms compared: 15
+
+Average Test F1 Score:
+  Grid Search:       0.2265
+  Transfer Learning: 0.1658
+  Difference:        -0.0607
+
+Performance Comparison:
+  Transfer Learning better: 1 algorithms
+  Grid Search better:       11 algorithms
+
+RECOMMENDATION
+--------------------------------------------------------------------------------
+
+⚠️  Grid Search on real data performs better on average.
+   Domain shift between synthetic and real data may be significant.
+
+
+DETAILED RESULTS BY ALGORITHM
+================================================================================
+
+Algorithm: changepoint_online_gaussian
+  Grid Search F1:       0.3496
+  Transfer Learning F1: 0.3592
+  Difference:           +0.0096 (+2.8%)
+  Synthetic F1:         0.4225
+
+Algorithm: bayesian_online_cpd_cpfinder
+  Grid Search F1:       0.0000
+  Transfer Learning F1: 0.0000
+  Difference:           +0.0000 (+0.0%)
+  Synthetic F1:         0.0000
+
+Algorithm: adwin_river
+  Grid Search F1:       0.0792
+  Transfer Learning F1: 0.0792
+  Difference:           +0.0000 (+0.0%)
+  Synthetic F1:         0.1718
+
+Algorithm: ocpdet_cumsum
+  Grid Search F1:       0.3211
+  Transfer Learning F1: 0.3211
+  Difference:           +0.0000 (+0.0%)
+  Synthetic F1:         0.2495
+
+Algorithm: ocpdet_two_sample_tests
+  Grid Search F1:       0.3417
+  Transfer Learning F1: 0.3319
+  Difference:           -0.0097 (-2.8%)
+  Synthetic F1:         0.4983
+
+Algorithm: ocpdet_neural_networks
+  Grid Search F1:       0.2491
+  Transfer Learning F1: 0.2353
+  Difference:           -0.0138 (-5.5%)
+  Synthetic F1:         0.2106
+
+Algorithm: ocpdet_ewma
+  Grid Search F1:       0.2740
+  Transfer Learning F1: 0.2232
+  Difference:           -0.0507 (-18.5%)
+  Synthetic F1:         0.2143
+
+Algorithm: ewma_numpy
+  Grid Search F1:       0.2890
+  Transfer Learning F1: 0.2369
+  Difference:           -0.0521 (-18.0%)
+  Synthetic F1:         0.2551
+
+Algorithm: page_hinkley_river
+  Grid Search F1:       0.3196
+  Transfer Learning F1: 0.2425
+  Difference:           -0.0771 (-24.1%)
+  Synthetic F1:         0.3541
+
+Algorithm: changepoint_online_focus
+  Grid Search F1:       0.1181
+  Transfer Learning F1: 0.0278
+  Difference:           -0.0903 (-76.5%)
+  Synthetic F1:         0.2308
+
+Algorithm: changepoint_online_md_focus
+  Grid Search F1:       0.1181
+  Transfer Learning F1: 0.0278
+  Difference:           -0.0903 (-76.5%)
+  Synthetic F1:         0.2308
+
+Algorithm: tagi_lstm_ssm
+  Grid Search F1:       0.2784
+  Transfer Learning F1: 0.1833
+  Difference:           -0.0950 (-34.1%)
+  Synthetic F1:         0.1205
+
+Algorithm: changepoint_online_np_focus
+  Grid Search F1:       0.1347
+  Transfer Learning F1: 0.0278
+  Difference:           -0.1069 (-79.4%)
+  Synthetic F1:         0.2179
+
+Algorithm: skf_kalman_canary
+  Grid Search F1:       0.2028
+  Transfer Learning F1: 0.0486
+  Difference:           -0.1542 (-76.0%)
+  Synthetic F1:         0.0769
+
+Algorithm: ssm_canary
+  Grid Search F1:       0.3226
+  Transfer Learning F1: 0.1431
+  Difference:           -0.1796 (-55.7%)
+  Synthetic F1:         0.1440
+
