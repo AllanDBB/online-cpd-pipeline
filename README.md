@@ -320,7 +320,7 @@ If you use this framework in your research, please cite:
 
 ## License
 
-[Specify license here]
+MIT License
 
 ## Contributing
 
@@ -331,7 +331,7 @@ Contributions are welcome. Please submit pull requests with:
 
 ## Contact
 
-[Contact information]
+a.bolanos.2@estudiantec.cr
 
 ## Acknowledgments
 
