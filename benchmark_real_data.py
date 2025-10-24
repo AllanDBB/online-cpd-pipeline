@@ -278,6 +278,10 @@ CONFIG: Dict[str, Any] = {
     "data_real_path": "data/data_real",
     "delta_eval": 10,
     "results_csv": "resultados_algoritmos_main3_real.csv",
+    # Labeler configuration
+    # Set to True to use only Martin's labels (recommended due to low agreement F1=0.24)
+    # Set to False to use all labels (Martin + Allan)
+    "use_only_martin_labels": True,
     "algorithm_configs": {
         "page_hinkley_river": {
             "grid": {
@@ -699,20 +703,29 @@ def train_test_split_real_data(datasets: List[Dict[str, Any]], test_size: float 
     }
 
 
-def load_real_data(data_path: str) -> List[Dict[str, Any]]:
-    """Load real labeled data from CSV files."""
+def load_real_data(data_path: str, use_only_martin: bool = True) -> List[Dict[str, Any]]:
+    """
+    Load real labeled data from CSV files.
+    
+    Args:
+        data_path: Path to the directory containing CSV files
+        use_only_martin: If True, load only Martin's labels. If False, load all labels.
+                        Default True due to low inter-annotator agreement (F1=0.24)
+    
+    Returns:
+        List of datasets with series and changepoint labels
+    """
     csv_files = glob.glob(os.path.join(data_path, "*.csv"))
     datasets = []
+    
+    # Track statistics
+    martin_count = 0
+    allan_count = 0
+    skipped_count = 0
     
     for csv_file in csv_files:
         try:
             df = pd.read_csv(csv_file)
-            
-            # Extract series data
-            series = df['Value'].values.astype(float)
-            
-            # Extract changepoints (where Is_ChangePoint is TRUE)
-            changepoints = df[df['Is_ChangePoint'] == True]['Index'].tolist()
             
             # Extract metadata from filename
             filename = os.path.basename(csv_file)
@@ -723,10 +736,27 @@ def load_real_data(data_path: str) -> List[Dict[str, Any]]:
             else:
                 annotator = 'unknown'
             
+            # Filter based on configuration
+            if use_only_martin and annotator != 'martin':
+                skipped_count += 1
+                continue
+            
+            # Extract series data
+            series = df['Value'].values.astype(float)
+            
+            # Extract changepoints (where Is_ChangePoint is TRUE)
+            changepoints = df[df['Is_ChangePoint'] == True]['Index'].tolist()
+            
             # Extract series ID from filename
             import re
             series_match = re.search(r'-s(\d+)_', filename)
             series_id = int(series_match.group(1)) if series_match else 0
+            
+            # Track counts
+            if annotator == 'martin':
+                martin_count += 1
+            elif annotator == 'allan':
+                allan_count += 1
             
             datasets.append({
                 'filename': filename,
@@ -747,10 +777,24 @@ def load_real_data(data_path: str) -> List[Dict[str, Any]]:
             print(f"Error loading {csv_file}: {e}")
             continue
     
-    print(f"Loaded {len(datasets)} real data series from {data_path}")
-    print(f"Annotators found: {set(d['annotator'] for d in datasets)}")
-    print(f"Series lengths range: {min(d['length'] for d in datasets)} - {max(d['length'] for d in datasets)}")
-    print(f"Changepoints per series range: {min(d['n_changepoints'] for d in datasets)} - {max(d['n_changepoints'] for d in datasets)}")
+    # Print summary
+    print("="*80)
+    print("REAL DATA LOADING SUMMARY")
+    print("="*80)
+    print(f"Configuration: {'ONLY MARTIN LABELS' if use_only_martin else 'ALL LABELS (Martin + Allan)'}")
+    if use_only_martin:
+        print(f"⚠️  Using only Martin's labels due to low inter-annotator agreement (F1=0.24)")
+    print(f"\nLoaded {len(datasets)} real data series from {data_path}")
+    print(f"  - Martin's series: {martin_count}")
+    print(f"  - Allan's series: {allan_count}")
+    if skipped_count > 0:
+        print(f"  - Skipped (filtered out): {skipped_count}")
+    print(f"\nAnnotators in final dataset: {set(d['annotator'] for d in datasets)}")
+    if datasets:
+        print(f"Series lengths range: {min(d['length'] for d in datasets)} - {max(d['length'] for d in datasets)}")
+        print(f"Changepoints per series range: {min(d['n_changepoints'] for d in datasets)} - {max(d['n_changepoints'] for d in datasets)}")
+    print("="*80)
+    print()
     
     return datasets
 
@@ -918,7 +962,7 @@ def main() -> None:
     
     # Load real data
     data_path = os.path.join(os.path.dirname(__file__), config["data_real_path"])
-    datasets = load_real_data(data_path)
+    datasets = load_real_data(data_path, use_only_martin=config.get("use_only_martin_labels", True))
     
     if not datasets:
         print("No real data found. Exiting.")
@@ -1182,8 +1226,23 @@ def main() -> None:
     # Save best series data for statistical analysis with timestamp
     best_series_json_filename = f"{timestamp}-best_series_analysis_real_data.json"
     best_series_json_path = os.path.join(os.path.dirname(__file__), best_series_json_filename)
+    
+    # Add configuration metadata to the JSON output
+    output_json = {
+        "configuration": {
+            "use_only_martin_labels": config.get("use_only_martin_labels", True),
+            "inter_annotator_agreement_f1": 0.24,  # From agreement analysis
+            "note": "Using only Martin's labels due to low inter-annotator agreement" if config.get("use_only_martin_labels", True) else "Using all labels (Martin + Allan)",
+            "delta_eval": config.get("delta_eval"),
+            "seed": config.get("seed"),
+            "profile": config.get("profile"),
+            "timestamp": timestamp,
+        },
+        "results": best_series_data
+    }
+    
     with open(best_series_json_path, 'w', encoding='utf-8') as f:
-        json.dump(best_series_data, f, ensure_ascii=False, indent=2, default=str)
+        json.dump(output_json, f, ensure_ascii=False, indent=2, default=str)
 
     print(f"\nBenchmark on real data completed. Results saved to: {output_path}")
     print(f"Best series data saved for statistical analysis to: {best_series_json_path}")

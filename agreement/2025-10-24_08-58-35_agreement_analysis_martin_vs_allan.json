@@ -1,0 +1,900 @@
+{
+  "summary": {
+    "total_series": 45,
+    "delta": 5,
+    "f1_score_mean": 0.23846560846560846,
+    "f1_score_std": 0.3213687796849586,
+    "f1_score_median": 0.0,
+    "f1_score_min": 0.0,
+    "f1_score_max": 1.0,
+    "precision_mean": 0.2777777777777778,
+    "recall_mean": 0.2388888888888889,
+    "total_tp": 26,
+    "total_fp": 44,
+    "total_fn": 45,
+    "series_with_perfect_f1": 2,
+    "series_with_f1_above_0.8": 3,
+    "series_with_f1_above_0.5": 12,
+    "series_with_f1_below_0.5": 33
+  },
+  "results_per_series": [
+    {
+      "series": "s1",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s1_2025-09-26T14-04-20.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s1_2025-10-24T14-17-33.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 0,
+      "martin_cps_list": [
+        50
+      ],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 1,
+      "precision": 0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s11",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s11_2025-09-26T14-04-31.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s11_2025-10-24T14-17-20.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 3,
+      "martin_cps_list": [],
+      "allan_cps_list": [
+        39,
+        67,
+        91
+      ],
+      "TP": 0,
+      "FP": 3,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s12",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s12_2025-09-26T14-04-09.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s12_2025-10-24T14-34-46.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s13",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s13_2025-09-26T14-04-32.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s13_2025-10-24T14-17-17.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s14",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s14_2025-09-26T14-03-41.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s14_2025-10-24T14-35-13.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        99
+      ],
+      "allan_cps_list": [
+        16,
+        86
+      ],
+      "TP": 0,
+      "FP": 2,
+      "FN": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s15",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s15_2025-09-26T14-04-27.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s15_2025-10-24T14-17-27.csv",
+      "martin_changepoints": 2,
+      "allan_changepoints": 1,
+      "martin_cps_list": [
+        57,
+        78
+      ],
+      "allan_cps_list": [
+        75
+      ],
+      "TP": 1,
+      "FP": 0,
+      "FN": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s16",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s16_2025-09-26T14-03-52.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s16_2025-10-24T14-35-09.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s17",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s17_2025-09-26T14-03-51.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s17_2025-10-24T14-35-10.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s18",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s18_2025-09-26T14-04-00.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s18_2025-10-24T14-34-58.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s19",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s19_2025-09-26T14-03-35.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s19_2025-10-24T14-35-19.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s2",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s2_2025-09-26T14-03-48.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s2_2025-10-24T14-35-11.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        13,
+        58,
+        93
+      ],
+      "allan_cps_list": [
+        22,
+        66
+      ],
+      "TP": 0,
+      "FP": 2,
+      "FN": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s20",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s20_2025-09-26T14-04-06.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s20_2025-10-24T14-34-49.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s22",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s22_2025-09-26T14-04-21.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s22_2025-10-24T14-17-31.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 0,
+      "martin_cps_list": [
+        52
+      ],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 1,
+      "precision": 0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s24",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s24_2025-09-26T14-03-56.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s24_2025-10-24T14-35-05.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 0,
+      "martin_cps_list": [
+        6,
+        49,
+        105
+      ],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 3,
+      "precision": 0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s25",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s25_2025-09-26T14-03-47.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s25_2025-10-24T14-35-15.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s26",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s26_2025-09-26T14-03-39.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s26_2025-10-24T14-35-16.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s28",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s28_2025-09-26T14-04-26.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s28_2025-10-24T14-17-29.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 0,
+      "martin_cps_list": [],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 0,
+      "precision": 0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s29",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s29_2025-09-26T14-03-59.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s29_2025-10-24T14-35-00.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 0,
+      "martin_cps_list": [
+        73
+      ],
+      "allan_cps_list": [],
+      "TP": 0,
+      "FP": 0,
+      "FN": 1,
+      "precision": 0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s3",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s3_2025-09-26T14-03-50.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s3_2025-10-24T14-35-08.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        53
+      ],
+      "allan_cps_list": [
+        37,
+        62
+      ],
+      "TP": 0,
+      "FP": 2,
+      "FN": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s30",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s30_2025-09-26T14-04-01.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s30_2025-10-24T14-34-57.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 1,
+      "martin_cps_list": [],
+      "allan_cps_list": [
+        89
+      ],
+      "TP": 0,
+      "FP": 1,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s31",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s31_2025-09-26T14-04-02.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s31_2025-10-24T14-34-55.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 4,
+      "martin_cps_list": [
+        63,
+        110,
+        116
+      ],
+      "allan_cps_list": [
+        15,
+        35,
+        61,
+        114
+      ],
+      "TP": 2,
+      "FP": 2,
+      "FN": 1,
+      "precision": 0.5,
+      "recall": 0.6666666666666666,
+      "f1": 0.5714285714285715
+    },
+    {
+      "series": "s32",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s32_2025-09-26T14-03-38.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s32_2025-10-24T14-35-18.csv",
+      "martin_changepoints": 4,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        86,
+        91,
+        98,
+        104
+      ],
+      "allan_cps_list": [
+        86,
+        101
+      ],
+      "TP": 2,
+      "FP": 0,
+      "FN": 2,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s33",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s33_2025-09-26T14-04-07.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s33_2025-10-24T14-34-48.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 1,
+      "martin_cps_list": [],
+      "allan_cps_list": [
+        49
+      ],
+      "TP": 0,
+      "FP": 1,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s34",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s34_2025-09-26T14-04-11.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s34_2025-10-24T14-17-35.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 1,
+      "martin_cps_list": [
+        23
+      ],
+      "allan_cps_list": [
+        27
+      ],
+      "TP": 1,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "series": "s35",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s35_2025-09-26T14-04-28.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s35_2025-10-24T14-17-29.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        37
+      ],
+      "allan_cps_list": [
+        19,
+        36,
+        103
+      ],
+      "TP": 1,
+      "FP": 2,
+      "FN": 0,
+      "precision": 0.3333333333333333,
+      "recall": 1.0,
+      "f1": 0.5
+    },
+    {
+      "series": "s36",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s36_2025-09-26T14-04-08.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s36_2025-10-24T14-34-50.csv",
+      "martin_changepoints": 4,
+      "allan_changepoints": 4,
+      "martin_cps_list": [
+        32,
+        43,
+        62,
+        87
+      ],
+      "allan_cps_list": [
+        42,
+        49,
+        71,
+        76
+      ],
+      "TP": 1,
+      "FP": 3,
+      "FN": 3,
+      "precision": 0.25,
+      "recall": 0.25,
+      "f1": 0.25
+    },
+    {
+      "series": "s37",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s37_2025-09-26T14-04-05.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s37_2025-10-24T14-34-51.csv",
+      "martin_changepoints": 4,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        13,
+        34,
+        61,
+        93
+      ],
+      "allan_cps_list": [
+        12,
+        63
+      ],
+      "TP": 2,
+      "FP": 0,
+      "FN": 2,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s38",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s38_2025-09-26T14-03-43.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s38_2025-10-24T14-35-12.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 1,
+      "martin_cps_list": [
+        10,
+        37,
+        59
+      ],
+      "allan_cps_list": [
+        118
+      ],
+      "TP": 0,
+      "FP": 1,
+      "FN": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s39",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s39_2025-09-26T14-03-37.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s39_2025-10-24T14-35-20.csv",
+      "martin_changepoints": 4,
+      "allan_changepoints": 1,
+      "martin_cps_list": [
+        60,
+        77,
+        86,
+        114
+      ],
+      "allan_cps_list": [
+        60
+      ],
+      "TP": 1,
+      "FP": 0,
+      "FN": 3,
+      "precision": 1.0,
+      "recall": 0.25,
+      "f1": 0.4
+    },
+    {
+      "series": "s4",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s4_2025-09-26T14-04-11.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s4_2025-10-24T14-17-36.csv",
+      "martin_changepoints": 2,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        65,
+        100
+      ],
+      "allan_cps_list": [
+        46,
+        58,
+        84
+      ],
+      "TP": 0,
+      "FP": 3,
+      "FN": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s40",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s40_2025-09-26T14-04-18.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s40_2025-10-24T14-17-32.csv",
+      "martin_changepoints": 2,
+      "allan_changepoints": 1,
+      "martin_cps_list": [
+        60,
+        90
+      ],
+      "allan_cps_list": [
+        63
+      ],
+      "TP": 1,
+      "FP": 0,
+      "FN": 1,
+      "precision": 1.0,
+      "recall": 0.5,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s41",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s41_2025-09-26T14-03-58.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s41_2025-10-24T14-35-01.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        8,
+        62,
+        72
+      ],
+      "allan_cps_list": [
+        63,
+        119
+      ],
+      "TP": 1,
+      "FP": 1,
+      "FN": 2,
+      "precision": 0.5,
+      "recall": 0.3333333333333333,
+      "f1": 0.4
+    },
+    {
+      "series": "s42",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s42_2025-09-26T14-03-42.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s42_2025-10-24T14-34-59.csv",
+      "martin_changepoints": 4,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        15,
+        30,
+        57,
+        84
+      ],
+      "allan_cps_list": [
+        31,
+        103,
+        119
+      ],
+      "TP": 1,
+      "FP": 2,
+      "FN": 3,
+      "precision": 0.3333333333333333,
+      "recall": 0.25,
+      "f1": 0.28571428571428575
+    },
+    {
+      "series": "s43",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s43_2025-10-24T14-35-22.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s43_2025-10-24T14-35-17.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        95
+      ],
+      "allan_cps_list": [
+        35,
+        65,
+        86
+      ],
+      "TP": 0,
+      "FP": 3,
+      "FN": 1,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s44",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s44_2025-09-26T14-04-21.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s44_2025-10-24T14-17-30.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 3,
+      "martin_cps_list": [],
+      "allan_cps_list": [
+        21,
+        64,
+        119
+      ],
+      "TP": 0,
+      "FP": 3,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s45",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s45_2025-09-26T14-03-57.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s45_2025-10-24T14-35-03.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        57,
+        70,
+        93
+      ],
+      "allan_cps_list": [
+        66,
+        93,
+        119
+      ],
+      "TP": 2,
+      "FP": 1,
+      "FN": 1,
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s46",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s46_2025-09-26T14-04-29.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s46_2025-10-24T14-17-26.csv",
+      "martin_changepoints": 0,
+      "allan_changepoints": 2,
+      "martin_cps_list": [],
+      "allan_cps_list": [
+        39,
+        119
+      ],
+      "TP": 0,
+      "FP": 2,
+      "FN": 0,
+      "precision": 0.0,
+      "recall": 0,
+      "f1": 0
+    },
+    {
+      "series": "s47",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s47_2025-09-26T14-04-10.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s47_2025-10-24T14-34-45.csv",
+      "martin_changepoints": 2,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        43,
+        63
+      ],
+      "allan_cps_list": [
+        48,
+        65
+      ],
+      "TP": 2,
+      "FP": 0,
+      "FN": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "series": "s48",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s48_2025-09-26T14-04-03.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s48_2025-10-24T14-34-53.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        21,
+        40,
+        59
+      ],
+      "allan_cps_list": [
+        25,
+        31,
+        59
+      ],
+      "TP": 2,
+      "FP": 1,
+      "FN": 1,
+      "precision": 0.6666666666666666,
+      "recall": 0.6666666666666666,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s49",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s49_2025-09-26T14-04-29.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s49_2025-10-24T14-17-28.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 4,
+      "martin_cps_list": [
+        61,
+        82,
+        98
+      ],
+      "allan_cps_list": [
+        43,
+        62,
+        82,
+        93
+      ],
+      "TP": 3,
+      "FP": 1,
+      "FN": 0,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1": 0.8571428571428571
+    },
+    {
+      "series": "s5",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s5_2025-09-26T14-03-55.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s5_2025-10-24T14-35-06.csv",
+      "martin_changepoints": 2,
+      "allan_changepoints": 3,
+      "martin_cps_list": [
+        65,
+        87
+      ],
+      "allan_cps_list": [
+        37,
+        75,
+        101
+      ],
+      "TP": 0,
+      "FP": 3,
+      "FN": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s50",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s50_2025-09-26T14-04-03.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s50_2025-10-24T14-34-53.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        13,
+        60,
+        80
+      ],
+      "allan_cps_list": [
+        63,
+        105
+      ],
+      "TP": 1,
+      "FP": 1,
+      "FN": 2,
+      "precision": 0.5,
+      "recall": 0.3333333333333333,
+      "f1": 0.4
+    },
+    {
+      "series": "s6",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s6_2025-09-26T14-04-04.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s6_2025-10-24T14-34-51.csv",
+      "martin_changepoints": 1,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        37
+      ],
+      "allan_cps_list": [
+        29,
+        37
+      ],
+      "TP": 1,
+      "FP": 1,
+      "FN": 0,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6666666666666666
+    },
+    {
+      "series": "s7",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s7_2025-09-26T14-03-54.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s7_2025-10-24T14-35-07.csv",
+      "martin_changepoints": 2,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        77,
+        103
+      ],
+      "allan_cps_list": [
+        49,
+        86
+      ],
+      "TP": 0,
+      "FP": 2,
+      "FN": 2,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0
+    },
+    {
+      "series": "s8",
+      "martin_file": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s8_2025-09-26T14-03-57.csv",
+      "allan_file": "serie_etiquetada_allan_datasAll-s8_2025-10-24T14-35-02.csv",
+      "martin_changepoints": 3,
+      "allan_changepoints": 2,
+      "martin_cps_list": [
+        58,
+        89,
+        107
+      ],
+      "allan_cps_list": [
+        55,
+        100
+      ],
+      "TP": 1,
+      "FP": 1,
+      "FN": 2,
+      "precision": 0.5,
+      "recall": 0.3333333333333333,
+      "f1": 0.4
+    }
+  ],
+  "timestamp": "2025-10-24T08:58:21.915088"
+}
