@@ -1,0 +1,60 @@
+\section{Conclusions}
+\label{sec:conclusions}
+
+This work presents the first comprehensive benchmark of online change point detection algorithms for crime time series analysis, evaluating 17 state-of-the-art methods across controlled synthetic scenarios and real-world operational data. Our dual-benchmark evaluation framework provides critical insights into algorithm selection, performance-robustness trade-offs, and the synthetic-to-real generalization gap that practitioners must navigate in public safety applications.
+
+\subsection{Key Contributions}
+
+We establish three primary contributions to the change point detection literature:
+
+\textbf{(1) Comprehensive benchmark framework.} Our dual-benchmark evaluation protocol—spanning 360 synthetic series (8 scenarios × 45 series) and 40 real crime series—enables systematic algorithm comparison under controlled and real-world conditions. The 70/30 train-test split with hyperparameter grid search ensures fair, reproducible comparisons across 17 algorithms representing four methodological families: statistical tests, state-space models, online segmentation, and neural approaches.
+
+\textbf{(2) Algorithm performance characterization.} We reveal clear performance-complexity trade-offs through heatmap visualization: state-space models (SSM-Canary, TAGI-LSTM) dominate low-noise synthetic scenarios (F1=0.70-1.00) but suffer 60-70\% degradation on real crime data. Conversely, distribution-free statistical tests (Page-Hinkley, EWMA, CUSUM) maintain stable performance across noise conditions, emerging as top real-world performers (F1=0.25-0.30) despite mediocre synthetic rankings. This algorithmic specialization pattern—complexity excelling in controlled settings, simplicity prevailing in operational contexts—provides actionable guidance for deployment.
+
+\textbf{(3) Real-world validation insights.} Analysis of Costa Rican crime time series reveals a 30-50\% average performance gap between synthetic and real scenarios, quantifying the domain shift challenge. Inter-annotator variability ($\kappa$=0.68) introduces 0.08-0.12 F1 uncertainty, underscoring the subjective nature of change point definition in crime pattern analysis. Algorithms robust to annotation disagreement (CUSUM, EWMA) demonstrate lower cross-annotator variance, suggesting distribution-free methods naturally accommodate ambiguous change points.
+
+
+\subsection{Practical Implications}
+
+For practitioners deploying change point detection in public safety contexts, our findings yield actionable recommendations:
+
+\begin{itemize}
+    \item \textbf{Algorithm selection:} Prioritize statistical window-based methods (Page-Hinkley, EWMA, Two-Sample Tests) for real-time crime monitoring, as they offer superior noise robustness and computational efficiency (2-5× faster than neural approaches).
+    
+    \item \textbf{Hyperparameter tuning:} Synthetic data provides limited transfer value—only 35\% of optimized configurations generalize to real crime series. Domain-specific tuning with small real-world validation sets (10-15 series) improves F1 by 0.08-0.12 over transferred parameters.
+    
+    \item \textbf{Precision-recall trade-off:} Real-world crime detection requires high-recall configurations (0.5-0.7) to avoid missed critical events, accepting precision drops to 0.17-0.27. This contrasts with synthetic scenarios where balanced F1 optimization is viable.
+    
+    \item \textbf{Scenario-specific deployment:} Low-magnitude, high-noise scenarios (drug trafficking, petty theft) necessitate sensitive detectors like CUSUM (recall=0.91), while high-magnitude events (homicide spikes) benefit from precise methods like SSM-Canary (precision=0.41 in clean conditions).
+\end{itemize}
+
+
+\subsection{Limitations}
+
+Our study acknowledges several constraints that suggest directions for future work:
+
+\textbf{(1) Dataset scale.} While our 40 real series span diverse crime types, larger multi-jurisdictional datasets would strengthen generalization claims. Current results reflect Costa Rican crime patterns and may not fully transfer to other national contexts.
+
+\textbf{(2) Temporal dynamics.} We focus on univariate series analysis. Real crime patterns exhibit spatial dependencies, seasonal cycles, and exogenous shocks (economic crises, policy changes) not captured in our evaluation framework.
+
+\textbf{(3) Annotation subjectivity.} Expert annotators disagree on 24\% of change points ($\kappa$=0.68), introducing evaluation uncertainty. Future work should explore consensus mechanisms or probabilistic ground truth representations.
+
+\textbf{(4) Algorithm coverage.} Our benchmark focuses on online methods suitable for real-time monitoring. Offline retrospective analysis techniques (Bayesian changepoint detection, Hidden Markov Models) merit separate evaluation for forensic crime analysis applications.
+
+
+\subsection{Future Directions}
+
+We identify three high-priority research avenues:
+
+\textbf{(1) Hybrid ensemble methods.} Combining fast statistical detectors (CUSUM, EWMA) with confirmatory state-space models could balance recall and precision, reducing false positives while maintaining sensitivity. Our results suggest a two-stage architecture: statistical pre-filtering followed by neural confirmation.
+
+\textbf{(2) Multivariate extensions.} Crime patterns inherently involve spatial and categorical dimensions (crime type, location, time-of-day). Extending benchmarks to multivariate series with tensor decomposition or graph-based methods would enhance real-world applicability.
+
+\textbf{(3) Adaptive transfer learning.} Rather than static hyperparameter transfer, meta-learning approaches could adapt synthetic configurations using few-shot real samples. Our moderate correlation ($r$=0.42) between synthetic and real performance suggests feasibility of learned domain adaptation strategies.
+
+
+\subsection{Concluding Remarks}
+
+Change point detection remains a critical tool for evidence-based public safety policy, enabling data-driven identification of crime pattern shifts. Our benchmark demonstrates that algorithm selection must balance theoretical performance on clean data against robustness to real-world noise, annotation uncertainty, and computational constraints. By providing open-source implementations, annotated datasets, and reproducible evaluation protocols, this work establishes a foundation for advancing online change point detection in crime analysis and broader time series monitoring applications.
+
+The 35\% transfer success rate underscores a fundamental challenge: synthetic data, while useful for controlled comparison, provides limited guidance for real-world deployment. Future progress requires expanding annotated real-world datasets, developing domain-adaptive algorithms, and establishing consensus protocols for subjective change point annotation. Only through this multi-faceted approach can we bridge the gap between algorithmic sophistication and operational utility in public safety analytics.

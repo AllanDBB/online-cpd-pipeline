@@ -227,8 +227,8 @@ def run_transfer_learning_benchmark(
         print("❌ No real data found. Exiting.")
         return
     
-    # Split into train/test
-    split_data = train_test_split_real_data(datasets, test_size=0.5, seed=config["seed"])
+    # Split into train/test (70/30)
+    split_data = train_test_split_real_data(datasets, test_size=0.3, seed=config["seed"])
     train_datasets = split_data['train']
     test_datasets = split_data['test']
     

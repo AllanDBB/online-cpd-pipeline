@@ -793,8 +793,6 @@ def main() -> None:
                 "algorithm_method": spec.method,
                 "supervision": spec.supervision,
                 "is_univariate": spec.is_univariate,
-                "iterations": config["n_iterations"],
-                "series_per_iteration": config["series_per_combo"],
                 "delta_eval": config["delta_eval"],
                 "series_total": len(data["series"]),
                 "series_train": len(train_data["series"]),
