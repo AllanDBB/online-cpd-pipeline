@@ -27,10 +27,10 @@ plt.rcParams.update({
 })
 
 # Paths
-SYNTHETIC_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_synthetic\10-24-2025-resultados_algoritmos_main2-synthetic.csv"
-REAL_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_real\10-24-2025-resultados_algoritmos_main3_real-real.csv"
-COMPARISON_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_comparision\10-24-2025_comparison_grid_vs_transfer.csv"
-CLASSIFICATION_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_real\10-24-2025-clasificacion_series_criminalidad.csv"
+SYNTHETIC_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_synthetic\10-31-2025-resultados_algoritmos_main2-synthetic.csv"
+REAL_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_real\10-31-2025-resultados_algoritmos_main3_real-real.csv"
+COMPARISON_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_comparision\10-31-2025_comparison_grid_vs_transfer.csv"
+CLASSIFICATION_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_real\10-31-2025-clasificacion_series_criminalidad.csv"
 
 FIGURES_DIR = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\paper\figures"
 os.makedirs(FIGURES_DIR, exist_ok=True)
@@ -316,18 +316,244 @@ def generate_scenario_difficulty_boxplot():
     
     print("✓ Figure 6: Scenario difficulty box plot")
 
+def generate_synthetic_heatmap():
+    """Generate heatmap with best F1 per scenario marked with stars."""
+    print("Generating synthetic data heatmap...")
+    
+    df = pd.read_csv(SYNTHETIC_CSV)
+    df_ok = df[df['status'] == 'ok'].copy()
+    
+    # Create scenario labels in English
+    noise_map = {'bajo': 'Low', 'medio': 'Med', 'alto': 'High'}
+    magnitude_map = {'bajo': 'Low', 'alto': 'High', 'pequeño': 'Small', 'mediano': 'Med', 'grande': 'Large'}
+    change_map = {'escalon': 'Step', 'pendiente': 'Ramp', 'abrupto': 'Abrupt', 'gradual': 'Gradual'}
+    
+    df_ok['scenario'] = df_ok.apply(
+        lambda row: f"{noise_map.get(row['nivel_ruido'], row['nivel_ruido'])}-"
+                    f"{magnitude_map.get(row['fuerza_cambio'], row['fuerza_cambio'])}-"
+                    f"{change_map.get(row['tipo_cambio'], row['tipo_cambio'])}", 
+        axis=1
+    )
+    
+    # Get ALL 17 algorithms
+    df_filtered = df_ok.copy()
+    
+    # Create pivot table
+    pivot = df_filtered.pivot_table(values='test_f1_mean', index='algorithm_key', columns='scenario', aggfunc='mean')
+    
+    # Find best F1 score per scenario (to handle ties)
+    best_scores_per_scenario = pivot.max(axis=0)
+    
+    # Create heatmap
+    fig, ax = plt.subplots(figsize=(16, 10))
+    sns.heatmap(pivot, annot=True, fmt='.2f', cmap='RdYlGn', center=0.5, 
+                cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, annot_kws={'fontsize': 8})
+    
+    # Add stars for ALL best performers (including ties) - in corner
+    for col_idx, scenario in enumerate(pivot.columns):
+        best_score = best_scores_per_scenario[scenario]
+        # Find ALL algorithms with the best score (handles ties)
+        best_algos = pivot[pivot[scenario] == best_score].index.tolist()
+        for best_algo in best_algos:
+            row_idx = pivot.index.tolist().index(best_algo)
+            # Place star in top-right corner of cell
+            ax.plot(col_idx + 0.85, row_idx + 0.15, marker='*', markersize=15, 
+                    color='gold', markeredgecolor='orange', markeredgewidth=1.5, zorder=10)
+    
+    ax.set_title('Synthetic Data: Algorithm Performance by Scenario (* = Best)', 
+                 fontweight='bold', pad=20, fontsize=14)
+    ax.set_xlabel('Scenario (Noise-Magnitude-Type)', fontweight='bold')
+    ax.set_ylabel('Algorithm', fontweight='bold')
+    
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_synthetic_heatmap.pdf'), bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_synthetic_heatmap.png'), bbox_inches='tight', dpi=300)
+    plt.close()
+    
+    print("✓ Synthetic heatmap with stars")
+
+def generate_real_heatmap():
+    """Generate heatmap for real data categorized by noise and change level."""
+    print("Generating real data heatmap...")
+    
+    df_results = pd.read_csv(REAL_CSV)
+    df_classif = pd.read_csv(CLASSIFICATION_CSV)
+    
+    # Get ALL 17 algorithms
+    all_algorithms = df_results['algorithm_key'].unique()
+    
+    # Separate OK and not implemented
+    df_ok = df_results[df_results['status'] == 'ok'].copy()
+    df_not_impl = df_results[df_results['status'] == 'not_implemented'].copy()
+    
+    # Get category distribution from classification data
+    category_counts = df_classif.groupby(['categoria_ruido', 'categoria_cambio']).size()
+    
+    # Create categories list
+    categories = []
+    for (ruido, cambio), count in category_counts.items():
+        categories.append(f"{ruido}-{cambio}")
+    
+    # Create a simple pivot table with overall performance
+    pivot = df_ok.pivot_table(values='test_f1_mean', index='algorithm_key', columns='annotator', aggfunc='mean')
+    
+    # Add not implemented algorithms with 0 values
+    for algo in df_not_impl['algorithm_key'].unique():
+        pivot.loc[algo] = 0.0
+    
+    # Rename to English
+    pivot.columns = ['Overall Performance']
+    
+    # Add info about data composition to title
+    if len(categories) > 1:
+        category_info = f" (Data includes: {', '.join(categories)} series)"
+    else:
+        category_info = ""
+    
+    # Find best F1 score per column (to handle ties)
+    best_scores_per_col = pivot.max(axis=0)
+    
+    # Create heatmap
+    fig, ax = plt.subplots(figsize=(8, 10))
+    sns.heatmap(pivot, annot=True, fmt='.2f', cmap='RdYlGn', center=0.25,
+                cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, annot_kws={'fontsize': 9})
+    
+    # Add stars for ALL best performers (including ties) - in corner
+    for col_idx, column in enumerate(pivot.columns):
+        best_score = best_scores_per_col[column]
+        # Find ALL algorithms with the best score (handles ties)
+        best_algos = pivot[pivot[column] == best_score].index.tolist()
+        for best_algo in best_algos:
+            row_idx = pivot.index.tolist().index(best_algo)
+            # Place star in top-right corner of cell
+            ax.plot(col_idx + 0.85, row_idx + 0.15, marker='*', markersize=15,
+                    color='gold', markeredgecolor='orange', markeredgewidth=1.5, zorder=10)
+    
+    ax.set_title(f'Real Crime Data: Algorithm Performance{category_info} (* = Best)',
+                 fontweight='bold', pad=20, fontsize=13)
+    ax.set_xlabel('Performance Metric', fontweight='bold')
+    ax.set_ylabel('Algorithm', fontweight='bold')
+    
+    plt.yticks(rotation=0)
+    plt.tight_layout()
+    
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_heatmap.pdf'), bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_heatmap.png'), bbox_inches='tight', dpi=300)
+    plt.close()
+    
+    print("✓ Real data heatmap with stars")
+
+def generate_synthetic_barplot():
+    """Generate bar plot comparing F1, Precision, Recall for ALL 17 algorithms on synthetic data."""
+    print("Generating synthetic data bar plot...")
+    
+    df = pd.read_csv(SYNTHETIC_CSV)
+    df_ok = df[df['status'] == 'ok'].copy()
+    
+    # Get ALL algorithms sorted by F1
+    algo_f1 = df_ok.groupby('algorithm_key')['test_f1_mean'].mean().sort_values(ascending=False)
+    all_algos = algo_f1.index.tolist()
+    
+    # Calculate means for all algorithms
+    metrics = df_ok.groupby('algorithm_key')[['test_f1_mean', 'test_precision_mean', 'test_recall_mean']].mean()
+    metrics = metrics.reindex(all_algos)  # Sort by F1
+    
+    # Create bar plot
+    fig, ax = plt.subplots(figsize=(14, 6))
+    
+    x = np.arange(len(metrics))
+    width = 0.25
+    
+    ax.bar(x - width, metrics['test_f1_mean'], width, label='F1', color='#2ecc71', alpha=0.8)
+    ax.bar(x, metrics['test_precision_mean'], width, label='Precision', color='#3498db', alpha=0.8)
+    ax.bar(x + width, metrics['test_recall_mean'], width, label='Recall', color='#e74c3c', alpha=0.8)
+    
+    ax.set_xlabel('Algorithm', fontweight='bold')
+    ax.set_ylabel('Score', fontweight='bold')
+    ax.set_title('Synthetic Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20)
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=8)
+    ax.legend(loc='upper right')
+    ax.grid(axis='y', alpha=0.3)
+    ax.set_ylim(0, 1.0)
+    
+    plt.tight_layout()
+    
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_synthetic_barplot.pdf'), bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_synthetic_barplot.png'), bbox_inches='tight', dpi=300)
+    plt.close()
+    
+    print("✓ Synthetic bar plot")
+
+def generate_real_barplot():
+    """Generate bar plot comparing F1, Precision, Recall for ALL 17 algorithms on real data."""
+    print("Generating real data bar plot...")
+    
+    df = pd.read_csv(REAL_CSV)
+    
+    # Get ALL 17 algorithms from the file (including not_implemented)
+    all_algorithms = df['algorithm_key'].unique().tolist()
+    
+    # Separate OK and not implemented
+    df_ok = df[df['status'] == 'ok'].copy()
+    df_not_impl = df[df['status'] == 'not_implemented'].copy()
+    
+    print(f"  DEBUG: Total algorithms: {len(all_algorithms)}")
+    print(f"  DEBUG: OK: {len(df_ok)}, Not implemented: {len(df_not_impl)}")
+    
+    # Calculate means for OK algorithms
+    metrics_ok = df_ok.groupby('algorithm_key')[['test_f1_mean', 'test_precision_mean', 'test_recall_mean']].mean()
+    
+    # For not implemented, set to 0
+    for algo in df_not_impl['algorithm_key'].unique():
+        metrics_ok.loc[algo] = [0.0, 0.0, 0.0]
+    
+    # Sort by F1 (OK algorithms first, then not implemented)
+    metrics = metrics_ok.sort_values('test_f1_mean', ascending=False)
+    
+    print(f"  DEBUG: Final metrics shape: {metrics.shape}")
+    
+    # Create bar plot
+    fig, ax = plt.subplots(figsize=(14, 6))
+    
+    x = np.arange(len(metrics))
+    width = 0.25
+    
+    ax.bar(x - width, metrics['test_f1_mean'], width, label='F1', color='#2ecc71', alpha=0.8)
+    ax.bar(x, metrics['test_precision_mean'], width, label='Precision', color='#3498db', alpha=0.8)
+    ax.bar(x + width, metrics['test_recall_mean'], width, label='Recall', color='#e74c3c', alpha=0.8)
+    
+    ax.set_xlabel('Algorithm', fontweight='bold')
+    ax.set_ylabel('Score', fontweight='bold')
+    ax.set_title('Real Crime Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20)
+    ax.set_xticks(x)
+    ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=8)
+    ax.legend(loc='upper right')
+    ax.grid(axis='y', alpha=0.3)
+    ax.set_ylim(0, 1.0)
+    
+    plt.tight_layout()
+    
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_barplot.pdf'), bbox_inches='tight')
+    plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_barplot.png'), bbox_inches='tight', dpi=300)
+    plt.close()
+    
+    print("✓ Real data bar plot")
+
 def main():
     """Generate all figures."""
     print("\n" + "="*60)
     print("GENERATING COMPREHENSIVE RESULT FIGURES")
     print("="*60 + "\n")
     
-    generate_top_algorithms_barplot()
-    generate_scenario_heatmap()
-    generate_metric_radar_chart()
-    generate_transfer_learning_scatter()
-    generate_real_data_stratified_analysis()
-    generate_scenario_difficulty_boxplot()
+    # Generate only the 4 new figures for the paper
+    generate_synthetic_heatmap()
+    generate_real_heatmap()
+    generate_synthetic_barplot()
+    generate_real_barplot()
     
     print("\n" + "="*60)
     print(f"✅ All figures saved to: {FIGURES_DIR}")
