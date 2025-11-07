@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from matplotlib.colors import LinearSegmentedColormap
 
 # Configure matplotlib
 plt.style.use('seaborn-v0_8-darkgrid')
@@ -34,6 +35,10 @@ CLASSIFICATION_CSV = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\resul
 
 FIGURES_DIR = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\paper\figures"
 os.makedirs(FIGURES_DIR, exist_ok=True)
+
+# Create custom colormap: Orange to Green gradient with specified colors
+colors_orange_green = ['#fca359', '#fed884', '#feffbe', '#c1e57b', '#7dc765']
+cmap_orange_green = LinearSegmentedColormap.from_list('orange_green', colors_orange_green)
 
 def generate_top_algorithms_barplot():
     """Figure 1: Top 10 algorithms comparison (Synthetic vs Real)."""
@@ -344,29 +349,34 @@ def generate_synthetic_heatmap():
     # Find best F1 score per scenario (to handle ties)
     best_scores_per_scenario = pivot.max(axis=0)
     
-    # Create heatmap
+    # Create heatmap - Custom Orange to Green gradient
     fig, ax = plt.subplots(figsize=(16, 10))
-    sns.heatmap(pivot, annot=True, fmt='.2f', cmap='RdYlGn', center=0.5, 
-                cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, annot_kws={'fontsize': 8})
+    hm = sns.heatmap(pivot, annot=True, fmt='.2f', cmap=cmap_orange_green, center=0.5, 
+                cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, 
+                annot_kws={'fontsize': 16, 'fontweight': 'bold', 'color': 'black'})
     
-    # Add stars for ALL best performers (including ties) - in corner
+    # Increase colorbar tick label size
+    cbar = hm.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=14)
+    
+    # Add stars for ALL best performers (including ties) - lowered position
     for col_idx, scenario in enumerate(pivot.columns):
         best_score = best_scores_per_scenario[scenario]
         # Find ALL algorithms with the best score (handles ties)
         best_algos = pivot[pivot[scenario] == best_score].index.tolist()
         for best_algo in best_algos:
             row_idx = pivot.index.tolist().index(best_algo)
-            # Place star in top-right corner of cell
-            ax.plot(col_idx + 0.85, row_idx + 0.15, marker='*', markersize=15, 
-                    color='gold', markeredgecolor='orange', markeredgewidth=1.5, zorder=10)
+            # Place star in top-right corner of cell (lowered a bit)
+            ax.plot(col_idx + 0.85, row_idx + 0.25, marker='*', markersize=12, 
+                    color='black', markeredgecolor='black', markeredgewidth=1.0, zorder=10)
     
     ax.set_title('Synthetic Data: Algorithm Performance by Scenario (* = Best)', 
-                 fontweight='bold', pad=20, fontsize=14)
-    ax.set_xlabel('Scenario (Noise-Magnitude-Type)', fontweight='bold')
-    ax.set_ylabel('Algorithm', fontweight='bold')
+                 fontweight='bold', pad=20, fontsize=16)
+    ax.set_xlabel('Scenario (Noise-Magnitude-Type)', fontweight='bold', fontsize=16)
+    ax.set_ylabel('Algorithm', fontweight='bold', fontsize=16)
     
-    plt.xticks(rotation=45, ha='right')
-    plt.yticks(rotation=0)
+    plt.xticks(rotation=45, ha='right', fontsize=16)
+    plt.yticks(rotation=0, fontsize=16)
     plt.tight_layout()
     
     plt.savefig(os.path.join(FIGURES_DIR, 'fig_synthetic_heatmap.pdf'), bbox_inches='tight')
@@ -416,28 +426,34 @@ def generate_real_heatmap():
     # Find best F1 score per column (to handle ties)
     best_scores_per_col = pivot.max(axis=0)
     
-    # Create heatmap
+    # Create heatmap - Custom Orange to Green gradient
     fig, ax = plt.subplots(figsize=(8, 10))
-    sns.heatmap(pivot, annot=True, fmt='.2f', cmap='RdYlGn', center=0.25,
-                cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, annot_kws={'fontsize': 9})
+    hm = sns.heatmap(pivot, annot=True, fmt='.2f', cmap=cmap_orange_green, center=0.25,
+                cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, 
+                annot_kws={'fontsize': 16, 'fontweight': 'bold', 'color': 'black'})
     
-    # Add stars for ALL best performers (including ties) - in corner
+    # Increase colorbar tick label size
+    cbar = hm.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=14)
+    
+    # Add stars for ALL best performers (including ties) - lowered position
     for col_idx, column in enumerate(pivot.columns):
         best_score = best_scores_per_col[column]
         # Find ALL algorithms with the best score (handles ties)
         best_algos = pivot[pivot[column] == best_score].index.tolist()
         for best_algo in best_algos:
             row_idx = pivot.index.tolist().index(best_algo)
-            # Place star in top-right corner of cell
-            ax.plot(col_idx + 0.85, row_idx + 0.15, marker='*', markersize=15,
-                    color='gold', markeredgecolor='orange', markeredgewidth=1.5, zorder=10)
+            # Place star in top-right corner of cell (lowered a bit)
+            ax.plot(col_idx + 0.85, row_idx + 0.25, marker='*', markersize=12,
+                    color='black', markeredgecolor='black', markeredgewidth=1.0, zorder=10)
     
     ax.set_title(f'Real Crime Data: Algorithm Performance{category_info} (* = Best)',
-                 fontweight='bold', pad=20, fontsize=13)
-    ax.set_xlabel('Performance Metric', fontweight='bold')
-    ax.set_ylabel('Algorithm', fontweight='bold')
+                 fontweight='bold', pad=20, fontsize=16)
+    ax.set_xlabel('Performance Metric', fontweight='bold', fontsize=16)
+    ax.set_ylabel('Algorithm', fontweight='bold', fontsize=16)
     
-    plt.yticks(rotation=0)
+    plt.yticks(rotation=0, fontsize=16)
+    plt.xticks(fontsize=16)
     plt.tight_layout()
     
     plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_heatmap.pdf'), bbox_inches='tight')
@@ -471,14 +487,15 @@ def generate_synthetic_barplot():
     ax.bar(x, metrics['test_precision_mean'], width, label='Precision', color='#3498db', alpha=0.8)
     ax.bar(x + width, metrics['test_recall_mean'], width, label='Recall', color='#e74c3c', alpha=0.8)
     
-    ax.set_xlabel('Algorithm', fontweight='bold')
-    ax.set_ylabel('Score', fontweight='bold')
-    ax.set_title('Synthetic Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20)
+    ax.set_xlabel('Algorithm', fontweight='bold', fontsize=16)
+    ax.set_ylabel('Score', fontweight='bold', fontsize=16)
+    ax.set_title('Synthetic Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20, fontsize=16)
     ax.set_xticks(x)
-    ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=8)
-    ax.legend(loc='upper right')
+    ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=16)
+    ax.legend(loc='upper right', fontsize=16)
     ax.grid(axis='y', alpha=0.3)
     ax.set_ylim(0, 1.0)
+    ax.tick_params(axis='y', labelsize=16)
     
     plt.tight_layout()
     
@@ -526,14 +543,15 @@ def generate_real_barplot():
     ax.bar(x, metrics['test_precision_mean'], width, label='Precision', color='#3498db', alpha=0.8)
     ax.bar(x + width, metrics['test_recall_mean'], width, label='Recall', color='#e74c3c', alpha=0.8)
     
-    ax.set_xlabel('Algorithm', fontweight='bold')
-    ax.set_ylabel('Score', fontweight='bold')
-    ax.set_title('Real Crime Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20)
+    ax.set_xlabel('Algorithm', fontweight='bold', fontsize=16)
+    ax.set_ylabel('Score', fontweight='bold', fontsize=16)
+    ax.set_title('Real Crime Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20, fontsize=16)
     ax.set_xticks(x)
-    ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=8)
-    ax.legend(loc='upper right')
+    ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=16)
+    ax.legend(loc='upper right', fontsize=16)
     ax.grid(axis='y', alpha=0.3)
     ax.set_ylim(0, 1.0)
+    ax.tick_params(axis='y', labelsize=16)
     
     plt.tight_layout()
     
