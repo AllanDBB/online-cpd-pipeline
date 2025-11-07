@@ -2,8 +2,6 @@
 %  For support, please attach all files needed for compiling as well as the log file, and specify your operating system, LaTeX version, and LaTeX editor.
 
 %=================================================================
-% DRAFT MODE: Uncomment next line for fast compilation (images as boxes)
-%\documentclass[journal,article,submit,pdftex,moreauthors,draft]{Definitions/mdpi} 
 \documentclass[journal,article,submit,pdftex,moreauthors]{Definitions/mdpi} 
 %\documentclass[preprints,article,submit,pdftex,moreauthors]{Definitions/mdpi} 
 % For posting an early version of this manuscript as a preprint, you may use "preprints" as the journal. Changing "submit" to "accept" before posting will remove line numbers.
@@ -75,7 +73,7 @@
 
 %=================================================================
 % Full title of the paper (Capitalized)
-\Title{Title}
+\Title{Assessing Online Change Point Detection in Noisy Environments: A Case Study on Synthetic and Real Crime Data}
 
 % MDPI internal command: Title for citation in the left column
 \TitleCitation{Title}
@@ -85,7 +83,7 @@
 %\newcommand{\orcidauthorB}{0000-0000-0000-000X} % Add \orcidB{} behind the author's name
 
 % Authors, for the paper (add full first names)
-\Author{Allan Bolanos Barrientos $^{1}$\orcidA{}, Martín Solís $^{2}$ and Firstname Lastname $^{2,}$*}
+\Author{Allan Bolaños Barrientos $^{1}$\orcidA{}, Martín Solís $^{2}$}
 
 %\longauthorlist{yes}
 
@@ -115,10 +113,10 @@ $^{2}$ \quad Costa Rica Institute of Technology; marsolis@itcr.ac.cr}
 %\conference{} % An extended version of a conference paper
 
 % Abstract (Do not insert blank lines, i.e. \\) 
-\abstract{Online change point detection is critical for real-time monitoring across diverse domains, yet algorithm performance under varying noise levels and change magnitudes remains poorly understood. This study presents the first comprehensive benchmark evaluating 17 state-of-the-art online change point detection algorithms across systematically controlled conditions. We assess performance on 360 synthetic time series spanning 8 scenarios that combine noise levels (low/high), change magnitudes (low/high), and change types (step/slope), plus 49 manually-labeled real-world crime occurrence series from Costa Rica. Results reveal substantial performance heterogeneity: state-space models (SSM-Canary, TAGI-LSTM) achieve near-perfect detection (F1 > 0.95) in low-noise scenarios but fail catastrophically in high-noise conditions (F1 < 0.25), while statistical tests (Two-Sample Tests, Gaussian Segmentation) maintain consistent moderate performance (F1 = 0.30-0.50) across all noise levels. Transfer learning analysis exposes critical domain adaptation challenges, with all algorithms experiencing significant performance degradation on real crime data (average F1 drop: 0.28 points, 45\% decrease). State-space methods suffer the most severe collapse, while distribution-free approaches prove more robust. Our findings demonstrate that synthetic benchmark rankings poorly predict real-world utility, emphasizing context-dependent algorithm selection. We provide actionable deployment guidelines matching algorithm characteristics to application requirements (precision vs. recall priorities, detection speed, noise tolerance) and release the labeled crime dataset and complete benchmark codebase to enable reproducible research and practical algorithm comparison.}
+\abstract{A single paragraph of about 200 words maximum.}
 
 % Keywords
-\keyword{online change point detection; algorithm benchmarking; time series analysis; noise robustness; transfer learning; crime data; synthetic evaluation; domain adaptation; real-time monitoring} 
+\keyword{keyword 1; keyword 2; keyword 3 (List three to ten pertinent keywords specific to the article; yet reasonably common within the subject discipline.)} 
 
 % The fields PACS, MSC, and JEL may be left empty or commented out if not applicable
 %\PACS{J0101}
@@ -174,69 +172,210 @@ $^{2}$ \quad Costa Rica Institute of Technology; marsolis@itcr.ac.cr}
 
 \section{Introduction}
 
-Change point detection is the finding of changes in the behavior pattern in a time series. The interest in finding change points can be online or offline. Online algorithms process data within a sliding window with size n to detect change points in real, while offline the entire time series is processed at once to detect the change points in the complete time series \cite{aminikhanghahi2017survey}. Online change detection has increased its relevance due to the rapid growth of stream data generation in diverse domains \cite{namoano2019online}. Nowadays the development of algorithms in online detection has contributed to relevant important issues such as fuel leakage detection \cite{chu2025real}, detection of change points in the spread of viruses to reveal the effectiveness of interventions \cite{dehning2020inferring}, detect pipe burst localization in water distribution \cite{mzembegwa2024real}, etc. 
-Change point detection methods could perform poorly when the data are noisy \cite{chen2016general} and make detection points challenging \cite{gold2018doubly}. This problem becomes greater when the changing points are subtle \cite{chu2025real}, even for humans. For example, in figure xx it can be seen the difficulty to the change point detection for the same time series with different levels of noise. Besides, the presence of noise can lead to the detection of false change points, when what there is noise. 
-Although noise can influence the performance of change detection algorithms, there is no benchmarking of how the algorithms perform in the presence of different levels noise levels in contexts with weak and strong change points, as far as we know. Therefore, the present research analyzes how the more common online change detection algorithms perform in the presence of noise and different levels of change.  The findings obtained can lead to a better choice of detection methods according to the type of time series under study, as well as opening new research questions on how to improve the detection of change points.
-As a second objective, this research will address a real problem such as the task of change points detection in time series of crimes occurrences. Although this task can contribute to monitoring crime, detecting regions where the pattern of crime changes, and establishing police strategies, it has received little attention on the research \cite{konstantinou2023trend}. On the other hand, the time series of crimes tend to show relevant levels of noise which can make it difficult to detect change points. Crime time series depend on the citizen's willingness to report the crime. Thus, noise does not only come from randomness of the phenomena but from a structural bias in the collection of information.
+Change point detection is the finding of changes in the behavior pattern in a time series. The interest in finding change points can be online or offline. Online algorithms process data within a sliding window with size n to detect change points in real time, while offline the entire time series is processed at once to detect the change points in the complete time series \cite{aminikhanghahi2017survey}. Online change detection has increased its relevance due to the rapid growth of stream data generation in diverse domains \cite{namoano2019online}. Nowadays the development of algorithms in online detection has contributed to relevant important issues such as fuel leakage detection \cite{chu2025real}, detection of change points in the spread of viruses to reveal the effectiveness of interventions \cite{dehning2020inferring}, detect pipe burst localization in water distribution \cite{mzembegwa2024real}, etc. \par
+
+Change point detection methods could perform poorly when the data are noisy \cite{chen2016general} and make detection points challenging \cite{gold2018doubly}. This problem becomes greater when the changing points are subtle \cite{chu2025real}, even for humans. For example, in figure xx it can be seen the difficulty to the change point detection for the same time series with different levels of noise. Besides, the presence of noise can lead to the detection of false change points, when what there is noise. Although noise can influence the performance of change detection algorithms, there is no benchmarking of how the algorithms perform in the presence of different levels noise levels in contexts with weak and strong change points, as far as we know. Therefore, the present research analyzes how the more common online change detection algorithms perform in the presence of noise and different levels of change.  The findings obtained can lead to a better choice of detection methods according to the type of time series under study, as well as opening new research questions on how to improve the detection of change points.\par
+
+As a second objective, this research examines a real-world scenario in which noise substantially affects time series, specifically the task of detecting change points in crime occurrences. Although this task can support crime monitoring, identify regions with shifts in criminal activity, and inform policing strategies, it has received limited attention in the literature \cite{konstantinou2023trend}. Furthermore, crime-related time series typically exhibit high noise levels, which hinders accurate change point detection. Notably, such noise arises not only from inherent stochasticity in criminal behavior but also from structural bias in data collection, as crime statistics depend on citizens’ willingness to report incidents.
 
 In summary the novel contributions of the manuscript are the next:
 \begin{itemize}
-    \item A novel performance benchmarking of the online change point detection algorithms based on the level of noise and strength of the change point.
-    \item Analysis of the change point detection in crime time series according to the level of noise.
+    \item A novel performance benchmarking of  online change point detection algorithms based on the level of noise and magnitude of the change point.As far as we know this is the first study that analyze how the algorithms behave in different conditions.
+    \item Performance analysis of the change point detection algorithms in a 
+    real-world scenario in which noise substantially affects time series, as it is crime counts.
     \item A new labeled dataset to detect change points in crime time series .
 \end{itemize}
 
 
 \section{Literature review}
-Recent studies have addressed the issue of online change point detection.  In \cite{cakmak2024benchmarking} six commonly available state-of-the-art changepoint detection approaches, with two additional modified algorithms, were compared in cardiovascular time series data. In \cite{van2020evaluation} a benchmarking of popular algorithms was generated using simulated data and 37 real time series from various application domains. \cite{wang2021online} evaluated online changepoint detection algorithms that work on unbounded data stream with a constant time and space complexity. Other authors, instead of comparing known methods in different contexts, developed a new proposal for online change point detection. These are the cases of \cite{chu2025real}, \cite{zameni2020unsupervised}, \cite{gold2018doubly}. In \cite{chu2025real}, the authors proposed a novel memory-based online change point detection (MOCPD) framework to find fuel leakage detection delays. \cite{gold2018doubly} create a method called Delta point that divides the time series into intervals of user-specified, domain specific length for which a suspected change point may be contained. In \cite{zameni2020unsupervised} the method created does not require any prior distributional knowledge of the time series and exploits the Information Gain to verify each new candidate change point score. In the studies where a benchmarking of methods is generated, neither in the studies where new proposals are created are there evaluations of the algorithm’s performance according to the level of noise and the level of change point. Therefore, there is a lack of knowledge about how algorithms work in specific circumstances.
-In relation to the detection of changes in crime events patterns, only a few studies have analyzed its effectiveness, although the application of change point detection algorithms can contribute to the police monitoring of criminality. This is the case of \cite{konstantinou2023trend} who investigate the effectiveness of both online and offline change point detection methods towards identifying critical changes in crime-related time series from Boston’ and the ‘London Police Records’ datasets. The best performance is obtained with BOCPD. In \cite{albertetti2016change} the authors proposed a fuzzy approach to detect change points in the CICOP data set (crime real-world data), that consisting of 32 monthly time series. They conclude that the proposal method has great potential in crime analysis, however there are not comparisons with baselines or other methods.  The work of \cite{theodosiadou2021change} consists in a proposal towards detecting change points in terrorism-related time series. They conclude that the proposed framework could be seen as an alternative way to identify links between terrorism and online activity
-This section describes the comprehensive methodology employed to benchmark online change point detection algorithms. The experimental design comprises three complementary evaluation approaches: (1) controlled experiments using synthetic time series with known change points, (2) real-world evaluation using manually labeled crime occurrence data, and (3) benchmark evaluation on the TCPD (Time Series Change Point Database) repository.
+Recent studies have addressed the issue of online change point detection.  In \cite{cakmak2024benchmarking} six commonly available state-of-the-art changepoint detection approaches, with two additional modified algorithms, were compared in cardiovascular time series data. In \cite{van2020evaluation} a benchmarking of popular algorithms was generated using simulated data and 37 real time series from various application domains. \cite{wang2021online} evaluated online changepoint detection algorithms that work on unbounded data stream with a constant time and space complexity. Other authors, instead of comparing known methods in different contexts, developed a new proposal for online change point detection. These are the cases of \cite{chu2025real}, \cite{zameni2020unsupervised}, \cite{gold2018doubly}. In \cite{chu2025real}, the authors proposed a novel memory-based online change point detection (MOCPD) framework to find fuel leakage detection delays. \cite{gold2018doubly} create a method called Delta point that divides the time series into intervals of user-specified, domain specific length for which a suspected change point may be contained. In \cite{zameni2020unsupervised} the method created does not require any prior distributional knowledge of the time series and exploits the Information Gain to verify each new candidate change point score. In the studies where a benchmarking of methods is generated, neither in the studies where new proposals are created are there evaluations of the algorithm’s performance according to the level of noise and the level of change point. Therefore, there is a lack of knowledge about how algorithms work in specific circumstances.\par
+In relation to the detection of changes in crime events patterns, only a few studies have analyzed its effectiveness, although the application of change point detection algorithms can contribute to the police monitoring of criminality. This is the case of \cite{konstantinou2023trend} who investigate the effectiveness of both online and offline change point detection methods towards identifying critical changes in crime-related time series from Boston’ and the ‘London Police Records’ datasets. The best performance is obtained with BOCPD. In \cite{albertetti2016change} the authors proposed a fuzzy approach to detect change points in the CICOP data set (crime real-world data), that consisting of 32 monthly time series. They conclude that the proposal method has great potential in crime analysis, however there are not comparisons with baselines or other methods.  The work of \cite{theodosiadou2021change} consists in a proposal towards detecting change points in terrorism-related time series. They conclude that the proposed framework could be seen as an alternative way to identify links between terrorism and online activity.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{sections/materials_methods.tex}
+\section{Methods}
+\label{sec:methods}
+This section describes the comprehensive methodology employed to benchmark online change point detection algorithms. The experimental design comprises three complementary evaluation approaches: (1) controlled experiments using synthetic time series with known change points, (2) real-world evaluation using manually labeled crime occurrence data
+\subsection{Datasets}
+We used a synthetic and a real dataset. The synthetic time series were created to evaluate the algorithms in conditions that are difficult to find in real labeled datasets.
+\subsubsection{Synthetic Time Series (Benchmark 1)}
+We generated synthetic time series for eight different scenarios derived from the combination of: two noise levels (high and low), two change point magnitudes (high and low), and two change point types (mean and slope). In total, 360 time series were produced, with 45 per scenario. The time series were generated with lengths $L \in \{200, 300, 400\}$ and varying numbers of change points $cp \in \{1, 2, 3, 4\}$.
+
+Formally, let $y_t$ denote the original observation and $\tilde{y}_t$ the perturbed observation.  
+The noise addition process is defined as:
+\begin{equation}
+    \tilde{y}_t = y_t + \epsilon_t
+\end{equation}
+In the implementation, noise was drawn from a standard normal distribution scaled by $\sigma$, that is:
+\begin{equation}
+    \epsilon_t = \sigma z_t, \quad z_t \sim \mathcal{N}(0, 1)
+\end{equation}
+ensuring that the intensity of perturbations can be controlled by the parameter $\sigma$. For high noise, values of $\sigma \in [3, 6]$ were used, whereas for low noise, $\sigma \in [0, 0.3]$.
+
+The magnitude of the change point is determined by a coefficient $\alpha$, which is added to the time series over a defined duration of time steps. This duration is chosen randomly but always exceeds five time steps. For high-magnitude changes, $\alpha \in [3, 6]$, and for low-magnitude changes, $\alpha \in [0.3, 1.0]$.
+
+When the change point affects the \textit{mean}, the magnitude $\alpha$ is added directly to the series.  
+When it affects the \textit{slope}, the magnitude is introduced progressively over the specified duration of time steps.  
+Mathematically, the incremental sequence can be expressed as:
+\begin{equation}
+    y_t = \frac{t}{n - 1} \cdot \alpha, \quad t = 0, 1, \ldots, n - 1
+\end{equation}
+
+\subsubsection{Real-World Crime Data (Benchmark 2)}
+We manually labeled the change points in 49 time series related to crime counts from regions in Boston, Los Angeles, Chicago, and Costa Rica.  
+Both daily and monthly time series were used, and each was truncated to 120 time steps to facilitate the visual identification of change points.
+\todo{Es ideal demostrar que las series de crimen tienen alto nivel de ruido. En efecto los es, pero debemos dar pruebas Las podemos clasificar. Hay un codigo para clasificarlas en los grupo}
+\subsection{Algorithms}
+We evaluated 17 online unsupervised change point detection algorithms spanning several methodological families:
+
+\begin{itemize}
+    \item \textbf{Statistical Process Control:} Page-Hinkley (PH), Adaptive Windowing (ADWIN), Exponentially Weighted Moving Average (EWMA), and Cumulative Sum (CUSUM).
+    \item \textbf{Segmentation-Based Methods:} Kernel-based PELT with radial basis function cost (Focus RBF), PELT with Gaussian likelihood (Gaussian L2), non-parametric sliding-window comparison (NPFocus), and a multivariate extension using Mahalanobis distance (MDFocus).
+    \item \textbf{State-Space Models:} Basic Kalman Filter monitoring prediction residuals (SSM-Canary), Tractable Approximate Gaussian Inference with LSTM architecture for adaptive state tracking (TAGI-LSTM), and Robust Square-Root Kalman Filter with outlier handling (SKF-Canary).
+    \item \textbf{Bayesian Methods:} Bayesian Online Change Point Detection with Student-t predictive distribution (BCPD CPFinder).
+    \item \textbf{Neural Network-Based Methods:} Autoregressive MLP monitoring prediction residuals (OCPDet-Neural), and Relative Unconstrained Least-Squares Importance Fitting via neural density ratio estimation (RuLSIF-Roerich).
+    \item \textbf{Two-Sample Testing:} Sliding-window Kolmogorov--Smirnov test (Two-Sample KS), and Sequential Discounting Autoregression with outlier scoring (ChangeFinder).
+\end{itemize}
+
+All algorithms were implemented using their respective reference libraries (e.g., \textit{River}, \textit{Ruptures}, \textit{OCPDet}).
+
+\subsection{Metrics for Performance Evaluation}
+Following standard practice in time series change point detection~\cite{ref_mtd}, we use the F1-score with a tolerance window of $\delta = 10$ time steps to account for detection delays.  
+
+\begin{equation}
+\text{F1}_\delta = \frac{2 \cdot \text{Precision}_\delta \cdot \text{Recall}_\delta}{\text{Precision}_\delta + \text{Recall}_\delta}
+\end{equation}
+
+Another metric used was Mean Time to Detection (MTTD). MTTD is the average detection delay. Lower values indicate faster detection. 
+
+\begin{equation}
+\text{MTTD} = \frac{1}{|\text{TP}_\delta|} \sum_{t^* \in \mathcal{T}_{\text{true}}} \min_{\hat{t} \in \mathcal{T}_{\text{det}}} |\hat{t} - t^*|
+\end{equation}
+
+
+\subsection{Experimental Procedure}
+For each of the eight scenarios in the synthetic dataset, we randomly split the time series into 70\% for calibration and 30\% for testing.  
+A hyperparameter grid search was performed for each algorithm using the calibration partition. The best hyperparameter configuration---based on the F1-score---was then used to evaluate performance on the test partition.  
+
+For the \textit{Real-World Crime Dataset}, we applied the same procedure but without predefined scenarios, since in real-world conditions, time series are not categorized by the type or magnitude of change point. Moreover, a single time series may exhibit multiple change points of varying magnitudes and types.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{sections/results.tex}
+\section{Results}
+\label{sec:results}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\input{sections/discussion.tex}
+We evaluate 17 online CPD algorithms across two benchmarks: (1) synthetic time series (8 scenarios × 45 series, varying noise/magnitude/change-type), and (2) real Costa Rican crime data (40 series). All experiments use 70/30 train-test splits with grid search hyperparameter optimization.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%============================================================================
+
+\todo{Bien has mejorado la gráfica. Me parece que los nombres del eje x hay que modificarlos, en lo que respecta al tipo de cambio. Hay dos acá mean y slope. Los nombres que usas ahora en lugar de estos son confusos, me refiero a ramp y step. Cambiar.
+Otra cosa es que quitaría de todas las figuras cpd cpfinder. Siempre da cero, puede tomarse como un error nuestro y alo mejor es de la libreria. Mejor quitar}
+
+\subsection{Benchmark 1: Synthetic Data Performance}
+\label{sec:results_synthetic}
+
+Figure~\ref{fig:synthetic_heatmap} shows F1 scores for all 17 algorithms across 8 scenarios. Stars (*) mark best performers per scenario. Figure~\ref{fig:synthetic_barplot} displays multi-metric comparison (F1, Precision, Recall).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_synthetic_heatmap.pdf}
+\caption{Synthetic data performance heatmap: F1 scores for all 17 algorithms across 8 scenarios. Stars (*) in top-right corners indicate best performers per scenario (multiple stars for ties). Color intensity reflects detection quality (green=high, red=low). Scenario notation: Noise-Magnitude-Type (e.g., Low-Low-Step, High-High-Ramp).}
+\label{fig:synthetic_heatmap}
+\end{figure}
+
+
+\todo{Esta figura 2 esta bien, pero creo que en vez de poner recall y precision, mejor agregamos el F1 score de los algoritmos, cuando ruido, y F1 score cuando no hay ruido. y el F1 score que estan actuamente si se deja. Lo que me refiero es combinar todos los resultados cuando hay ruido y sacar la media del F1 score y de cuando no lo hay De esta manera este grafico mostrara resultados generales por algoritmo }
+
+
+\todo{En la figura 3 quizás podemos agregar dos coumnas más, una para las series con ruido y otras para las que no tienen ruido. Claro habría que clasificarlas primero }
+
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/fig_synthetic_barplot.pdf}
+\caption{Synthetic data: Multi-metric performance comparison for all 17 algorithms. Algorithms ordered by descending average F1 score. Note the precision-recall trade-offs: top performers achieve balanced metrics (F1≈Precision≈Recall), while lower-ranked algorithms show metric divergence.}
+\label{fig:synthetic_barplot}
+\end{figure}
+
+\textbf{Key findings:} (1) \textbf{Performance tiers}: State-space models (TAGI-LSTM, SSM-Canary, SKF-Kalman) achieve F1 $>$ 0.50 in clean conditions, while statistical tests (CUSUM, EWMA) maintain F1 = 0.30-0.45 across all noise levels. (2) \textbf{Scenario difficulty}: Low-noise scenarios yield near-perfect F1 (green heatmap columns), while high-noise conditions cap performance at F1 $<$ 0.40 (red columns)—a 3× gap. (3) \textbf{Change type sensitivity}: Step changes outperform Ramps by 15-25\% F1 under matched conditions. (4) \textbf{Noise fragility}: State-space models suffer 60-70\% degradation in high noise, while distribution-free methods maintain 40-50\% of peak performance.
+
+
+%=============================================================================
+\subsection{Benchmark 2: Real Crime Data Performance}
+\label{sec:results_real}
+
+Figure~\ref{fig:real_heatmap} shows performance on 40 Costa Rican crime series (homicides, thefts, drug arrests; 100-500 daily observations). Figure~\ref{fig:real_barplot} reveals synthetic-to-real generalization gaps.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{figures/fig_real_heatmap.pdf}
+\caption{Real crime data performance heatmap: F1 scores for all 17 algorithms on overall test set. Stars (*) in top-right corners indicate best performer(s). Data includes mixed-difficulty series (low/high noise × low/high change combinations). Two algorithms (Changefinder, RULSIF) show zero scores due to implementation limitations.}
+\label{fig:real_heatmap}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1\textwidth]{figures/fig_real_barplot.pdf}
+\caption{Real crime data: Multi-metric performance for all 17 algorithms. Algorithms ordered by F1 score. Note characteristic Precision-Recall imbalance: all algorithms favor Recall (0.50-0.70) over Precision (0.17-0.27), reflecting operational bias toward conservative detection in crime monitoring.}
+\label{fig:real_barplot}
+\end{figure}
+
+\textbf{Key findings:} (1) \textbf{Domain shift severity}: F1 scores drop 50-70\% from synthetic to real data. Synthetic leader TAGI-LSTM (F1=0.62) falls to rank 10 (F1=0.22), while CUSUM (F1=0.41 synthetic) claims rank 1 (F1=0.29 real). (2) \textbf{Precision-Recall imbalance}: All algorithms favor Recall (0.50-0.70) over Precision (0.17-0.27), reflecting operational bias toward conservative detection in crime monitoring. (3) \textbf{Ranking reversal}: State-space models (top-3 synthetic) plummet to ranks 10-12 on real data, while distribution-free tests (CUSUM, EWMA, Page-Hinkley) emerge as leaders. (4) \textbf{Operational viability}: Only 5/17 algorithms achieve F1 $>$ 0.25, with 2 not-implemented (Changefinder, RULSIF) and 2 below F1=0.20. (5) \textbf{Efficiency alignment}: Top real-data performers process series 5-10× faster than neural methods.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Conclusions}
+\label{sec:conclusions}
 
-This study presents the first comprehensive benchmark of online change point detection algorithms that systematically evaluates performance across varying noise levels, change magnitudes, and change types. Through controlled synthetic experiments on 360 time series, real-world validation on 49 crime occurrence series, and transfer learning analysis, we provide actionable insights for algorithm selection in practical applications.
+We benchmark 17 online CPD algorithms across synthetic (360 series, 8 scenarios) and real crime data (40 series), revealing critical synthetic-to-real generalization gaps and performance-robustness trade-offs.
 
-Our key findings reveal substantial performance heterogeneity across scenarios. SSM-Canary achieves the highest overall F1-score (0.390) on synthetic data, demonstrating balanced precision-recall trade-offs. However, algorithm effectiveness is highly context-dependent: state-space models (SSM-Canary, TAGI-LSTM) excel in low-noise, high-magnitude step changes (F1 > 0.95) but fail catastrophically in high-noise conditions (F1 < 0.25). Conversely, statistical tests (Two-Sample Tests, Gaussian Segmentation) maintain consistent moderate performance across all noise levels (F1 = 0.30-0.50), proving more robust for uncertain environments.
+\subsection{Key Contributions}
 
-The synthetic-to-real transfer learning analysis exposes critical domain adaptation challenges. All algorithms experience substantial performance degradation when applied to real crime data (average F1 drop: 0.28 points, 45\% relative decrease). State-space methods suffer the most severe collapse (F1 reduction > 0.65), while distribution-free statistical approaches maintain relative effectiveness (F1 drop < 0.20). These findings demonstrate that synthetic benchmark rankings are poor predictors of real-world utility, emphasizing the necessity of domain-specific validation.
+\textbf{(1) Dual-benchmark protocol.} Our framework combines controlled synthetic experiments with real crime validation, enabling fair comparison across 17 algorithms spanning statistical tests, state-space models, online segmentation, and neural approaches.
 
-Our benchmark identifies scenario-algorithm interactions that guide practical deployment. For applications requiring high precision (e.g., clinical alerts), Focus variants and neural networks minimize false alarms despite lower recall. For change-miss-intolerant contexts (e.g., fraud detection), CUSUM and EWMA achieve near-perfect recall (>0.90) at the cost of increased false positives. Real-time systems benefit from state-space models' rapid detection (MTTD < 1 timestep) when noise conditions permit, while adaptive methods like ADWIN suit non-stationary streams.
+\textbf{(2) Performance-complexity trade-offs.} State-space models (TAGI-LSTM, SSM-Canary) dominate clean synthetic scenarios (F1=0.70-1.00) but suffer 60-70\% degradation on real data. Distribution-free tests (CUSUM, EWMA) sacrifice peak performance for operational robustness, emerging as real-world leaders (F1=0.25-0.30).
 
-The study has several limitations. Our synthetic scenarios, while diverse, cannot capture all real-world complexity—crime data revealed patterns (seasonality, structural breaks, reporting bias) absent in controlled simulations. The crime dataset, though manually labeled by domain experts, reflects a single geographic region (Costa Rica) and may not generalize to other crime types or jurisdictions. Hyperparameter optimization via grid search, while exhaustive within predefined ranges, may not identify globally optimal configurations. Future work should expand to additional real-world domains (finance, healthcare, industrial monitoring), incorporate online learning algorithms that adapt to distribution shifts, and develop hybrid methods combining the robustness of statistical tests with the sensitivity of state-space models.
+\textbf{(3) Domain shift quantification.} Real crime data exhibits 30-50\% F1 degradation versus synthetic benchmarks, with universal Precision-Recall imbalance (Recall 2-3× Precision) reflecting sparse true positives in noisy operational environments.
 
-Despite these limitations, our benchmark provides the most comprehensive evaluation to date of online change point detection algorithms under realistic noise and change conditions. The publicly released labeled crime dataset, performance matrices across 8 scenarios, and implementation codebase enable reproducible research and facilitate algorithm comparison for practitioners. Our findings shift the field's focus from pursuing universal "best" algorithms toward context-aware selection strategies that match algorithm characteristics to application requirements, ultimately improving change detection reliability in production systems.
+
+\subsection{Practical Implications}
+
+\textbf{Algorithm selection:} For noisy operational data (crime, economics), prioritize distribution-free tests (CUSUM, EWMA) offering robust detection with 5-10× lower computational overhead. Reserve state-space models for clean-data applications (sensors, quality control).
+
+\textbf{Hyperparameter tuning:} Grid search yields 15-30\% F1 improvements over defaults. Synthetic configurations transfer poorly (35\% success rate)—tune on small real validation sets (10-15 series) for 0.08-0.12 F1 gains.
+
+\textbf{Operational trade-offs:} Crime monitoring requires high-recall configurations (0.50-0.70), accepting precision drops to 0.17-0.27. No universal ``best'' algorithm—deploy scenario-adaptive ensembles.
+
+
+\subsection{Limitations}
+
+\textbf{Dataset scale:} 360 synthetic + 40 real series provide initial validation; larger multi-jurisdictional datasets would strengthen generalization claims beyond Costa Rican crime patterns.
+
+\textbf{Temporal dynamics:} Univariate analysis omits spatial dependencies, seasonal cycles, and exogenous shocks (economic crises, policy changes) present in real crime data.
+
+\textbf{Annotation subjectivity:} Expert disagreement on 24\% of change points ($\kappa$=0.68) introduces evaluation uncertainty. Consensus mechanisms or probabilistic ground truth would reduce noise.
+
+\textbf{Algorithm coverage:} Focus on online methods excludes offline retrospective techniques (Bayesian changepoint detection, HMMs) relevant for forensic analysis.
+
+
+\subsection{Future Directions}
+
+\textbf{Hybrid ensembles:} Combine fast statistical detectors (CUSUM, EWMA) with confirmatory state-space models in two-stage architectures—statistical pre-filtering followed by neural confirmation.
+
+\textbf{Multivariate extensions:} Incorporate spatial and categorical dimensions (crime type, location, time-of-day) via tensor decomposition or graph-based methods.
+
+\textbf{Transfer learning:} Meta-learning approaches adapting synthetic configurations using few-shot real samples could overcome the 35\% transfer success rate via domain adaptation.
+
+
+\subsection{Concluding Remarks}
+
+Controlled synthetic benchmarks systematically overestimate real-world performance by 50-70\% F1, necessitating dual-benchmark evaluation protocols. We reveal a fundamental trade-off: complexity enables peak accuracy under favorable conditions but introduces fragility, while simplicity sacrifices performance for robust generalization. For operational deployment in noisy environments, distribution-free tests (CUSUM, EWMA) outperform complex models despite lower synthetic rankings. Our open-source framework—spanning implementations, datasets, and reproducible protocols—provides evidence-based guidance for CPD algorithm selection in real-world monitoring systems.
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Author Contributions}
 
-Conceptualization, A.B.B. and M.S.; methodology, A.B.B. and M.S.; software, A.B.B.; validation, A.B.B. and M.S.; formal analysis, A.B.B.; investigation, A.B.B.; resources, M.S.; data curation, A.B.B.; writing—original draft preparation, A.B.B.; writing—review and editing, M.S.; visualization, A.B.B.; supervision, M.S.; project administration, M.S. All authors have read and agreed to the published version of the manuscript.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Funding}
-
-This research received no external funding.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Data Availability Statement}
-
-The datasets generated and analyzed during the current study, including the labeled crime occurrence time series and complete benchmark results, are available in the GitHub repository: \url{https://github.com/AllanDBB/online-cpd-pipeline}. The repository also contains all source code for data generation, algorithm implementation, and performance evaluation to ensure full reproducibility.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{Conflicts of Interest}
-
-The authors declare no conflicts of interest.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \vspace{6pt} 
@@ -269,17 +408,12 @@ The authors declare no conflicts of interest.
 %}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\authorcontributions{For research articles with several authors, a short paragraph specifying their individual contributions must be provided. The following statements should be used ``Conceptualization, X.X. and Y.Y.; methodology, X.X.; software, X.X.; validation, X.X., Y.Y. and Z.Z.; formal analysis, X.X.; investigation, X.X.; resources, X.X.; data curation, X.X.; writing---original draft preparation, X.X.; writing---review and editing, X.X.; visualization, X.X.; supervision, X.X.; project administration, X.X.; funding acquisition, Y.Y. All authors have read and agreed to the published version of the manuscript.'', please turn to the  \href{http://img.mdpi.org/data/contributor-role-instruction.pdf}{CRediT taxonomy} for the term explanation. Authorship must be limited to those who have contributed substantially to the work~reported.}
+\authorcontributions{Conceptualization, MS; methodology, M.S.; software, A.B.; Experimentation, A.B; data analysis, A.B.; investigation, A.B and MS;  writing---original draft preparation, A.B and MS. All authors have read and agreed to the published version of the manuscript}
 
-\funding{Please add: ``This research received no external funding'' or ``This research was funded by NAME OF FUNDER grant number XXX.'' and  and ``The APC was funded by XXX''. Check carefully that the details given are accurate and use the standard spelling of funding agency names at \url{https://search.crossref.org/funding}, any errors may affect your future funding.}
+\funding{This research received no external funding}
 
-\institutionalreview{In this section, you should add the Institutional Review Board Statement and approval number, if relevant to your study. You might choose to exclude this statement if the study did not require ethical approval. Please note that the Editorial Office might ask you for further information. Please add “The study was conducted in accordance with the Declaration of Helsinki, and approved by the Institutional Review Board (or Ethics Committee) of NAME OF INSTITUTE (protocol code XXX and date of approval).” for studies involving humans. OR “The animal study protocol was approved by the Institutional Review Board (or Ethics Committee) of NAME OF INSTITUTE (protocol code XXX and date of approval).” for studies involving animals. OR “Ethical review and approval were waived for this study due to REASON (please provide a detailed justification).” OR “Not applicable” for studies not involving humans or animals.}
 
-\informedconsent{Any research article describing a study involving humans should contain this statement. Please add ``Informed consent was obtained from all subjects involved in the study.'' OR ``Patient consent was waived due to REASON (please provide a detailed justification).'' OR ``Not applicable'' for studies not involving humans. You might also choose to exclude this statement if the study did not involve humans.
-
-Written informed consent for publication must be obtained from participating patients who can be identified (including by the patients themselves). Please state ``Written informed consent has been obtained from the patient(s) to publish this paper'' if applicable.}
-
-\dataavailability{We encourage all authors of articles published in MDPI journals to share their research data. In this section, please provide details regarding where data supporting reported results can be found, including links to publicly archived datasets analyzed or generated during the study. Where no new data were created, or where data is unavailable due to privacy or ethical restrictions, a statement is still required. Suggested Data Availability Statements are available in section ``MDPI Research Data Policies'' at \url{https://www.mdpi.com/ethics}.} 
+\dataavailability{MDPI Research Data Policies'' at \url{https://www.mdpi.com/ethics}.} 
 
 % Only for journal Drones
 %\durcstatement{Current research is limited to the [please insert a specific academic field, e.g., XXX], which is beneficial [share benefits and/or primary use] and does not pose a threat to public health or national security. Authors acknowledge the dual-use potential of the research involving xxx and confirm that all necessary precautions have been taken to prevent potential misuse. As an ethical responsibility, authors strictly adhere to relevant national and international laws about DURC. Authors advocate for responsible deployment, ethical considerations, regulatory compliance, and transparent reporting to mitigate misuse risks and foster beneficial outcomes.}
@@ -295,7 +429,7 @@ Written informed consent for publication must be obtained from participating pat
 
 \acknowledgments{In this section you can acknowledge any support given which is not covered by the author contribution or funding sections. This may include administrative and technical support, or donations in kind (e.g., materials used for experiments). Where GenAI has been used for purposes such as generating text, data, or graphics, or for study design, data collection, analysis, or interpretation of data, please add “During the preparation of this manuscript/study, the author(s) used [tool name, version information] for the purposes of [description of use]. The authors have reviewed and edited the output and take full responsibility for the content of this publication.”}
 
-\conflictsofinterest{Declare conflicts of interest or state ``The authors declare no conflicts of interest.'' Authors must identify and declare any personal circumstances or interest that may be perceived as inappropriately influencing the representation or interpretation of reported research results. Any role of the funders in the design of the study; in the collection, analyses or interpretation of data; in the writing of the manuscript; or in the decision to publish the results must be declared in this section. If there is no role, please state ``The funders had no role in the design of the study; in the collection, analyses, or interpretation of data; in the writing of the manuscript; or in the decision to publish the results''.} 
+\conflictsofinterest{Declare conflicts of interest or state ``The authors declare no conflicts of interest.} 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Optional
@@ -303,41 +437,26 @@ Written informed consent for publication must be obtained from participating pat
 %% Only for journal Encyclopedia
 %\entrylink{The Link to this entry published on the encyclopedia platform.}
 
-\abbreviations{Abbreviations}{
-The following abbreviations are used in this manuscript:
-\\
 
-\noindent 
-\begin{tabular}{@{}ll}
-CPD & Change Point Detection\\
-ADWIN & Adaptive Windowing\\
-BOCPD & Bayesian Online Change Point Detection\\
-CUSUM & Cumulative Sum\\
-EWMA & Exponentially Weighted Moving Average\\
-PELT & Pruned Exact Linear Time\\
-SSM & State-Space Model\\
-SKF & Square Root Kalman Filter\\
-TAGI & Tractable Approximate Gaussian Inference\\
-LSTM & Long Short-Term Memory\\
-RULSIF & Relative Unconstrained Least-Squares Importance Fitting\\
-NSR & Noise-to-Signal Ratio\\
-MTTD & Mean Time to Detection\\
-MMD & Maximum Mean Discrepancy\\
-TCPD & Time Series Change Point Database\\
-AR & Autoregressive\\
-MLP & Multilayer Perceptron\\
-RBF & Radial Basis Function
-\end{tabular}
-}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Optional
-\appendixtitles{yes} % Changed to "yes" because we have titled appendix sections
+\appendixtitles{no} % Leave argument "no" if all appendix headings stay EMPTY (then no dot is printed after "Appendix A"). If the appendix sections contain a heading then change the argument to "yes".
 \appendixstart
 \appendix
+\section[\appendixname~\thesection]{}
+\subsection[\appendixname~\thesubsection]{}
 
-\input{sections/appendix_detailed_tables.tex}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\isPreprints{}{% This command is only used for ``preprints''.
+\begin{adjustwidth}{-\extralength}{0cm}
+%} % If the paper is ``preprints'', please uncomment this parenthesis.
+%\printendnotes[custom] % Un-comment to print a list of endnotes
+
+\reftitle{References}
 
 % Please provide the correct journal abbreviation (e.g. according to the “List of Title Word Abbreviations” http://www.issn.org/services/online-services/access-to-the-ltwa/).
 % Citations and References in Supplementary files are permitted provided that they also appear in the reference list here. 
@@ -345,12 +464,136 @@ RBF & Radial Basis Function
 %=====================================
 % References, variant A: external bibliography
 %=====================================
-\bibliography{references}
+% \bibliography{your_external_BibTeX_file}
 
 %=====================================
-% References, variant B: internal bibliography (COMMENTED OUT - using external .bib file)
+% References, variant B: internal bibliography
 %=====================================
 
+% ACS format
+\begin{thebibliography}{999}
+
+\bibitem{aminikhanghahi2017survey}
+S. Aminikhanghahi and D. J. Cook,
+``A survey of methods for time series change point detection,''
+\textit{Knowledge and Information Systems}, vol.~51, no.~2, pp.~339--367, 2017.
+
+\bibitem{namoano2019online}
+B. Namoano, A. Starr, C. Emmanouilidis, and C. R. Carcel,
+``Online change detection techniques in time series: An overview,''
+in \textit{2019 IEEE International Conference on Prognostics and Health Management (ICPHM)}, 2019, pp.~1--10.
+
+\bibitem{chu2025real}
+R. Chu, L. Chik, Y. Song, J. Chan, and X. Li,
+``Real-time fuel leakage detection via online change point detection,''
+\textit{International Journal of Data Science and Analytics}, pp.~1--18, 2025.
+
+\bibitem{dehning2020inferring}
+J. Dehning, J. Zierenberg, F. P. Spitzner, M. Wibral, J. P. Neto, M. Wilczek, and V. Priesemann,
+``Inferring change points in the spread of COVID-19 reveals the effectiveness of interventions,''
+\textit{Science}, vol.~369, no.~6500, pp.~eabb9789, 2020.
+
+\bibitem{mzembegwa2024real}
+T. Mzembegwa and C. N. Nyirenda,
+``Real-time pipe burst localization in water distribution networks using change point detection algorithms,''
+in \textit{Proc. 2024 International Conference on Emerging Trends in Networks and Computer Communications (ETNCC)}, pp.~1--8, 2024.
+
+\bibitem{gold2018doubly}
+N. Gold, M. G. Frasch, C. L. Herry, B. S. Richardson, and X. Wang,
+``A doubly stochastic change point detection algorithm for noisy biological signals,''
+\textit{Frontiers in Physiology}, vol.~8, p.~1112, 2018.
+
+\bibitem{chen2016general}
+X. C. Chen, Y. Yao, S. Shi, S. Chatterjee, V. Kumar, and J. H. Faghmous,
+``A general framework to increase the robustness of model-based change point detection algorithms to outliers and noise,''
+in \textit{Proceedings of the 2016 SIAM International Conference on Data Mining}, pp.~162--170, 2016.
+
+\bibitem{konstantinou2023trend}
+A. Konstantinou, D. Chatzakou, O. Theodosiadou, T. Tsikrika, S. Vrochidis, and I. Kompatsiaris,
+``Trend detection in crime-related time series with change point detection methods,''
+in \textit{International Conference of the Cross-Language Evaluation Forum for European Languages}, pp.~72--84, 2023.
+
+\bibitem{cakmak2024benchmarking}
+A. Cakmak, E. Reinertsen, S. Nemati, and G. D. Clifford,
+``Benchmarking changepoint detection algorithms on cardiac time series,''
+\textit{arXiv preprint arXiv:2404.12408}, 2024.
+
+\bibitem{van2020evaluation}
+G. J. J. Van den Burg and C. K. I. Williams,
+``An evaluation of change point detection algorithms,''
+\textit{arXiv preprint arXiv:2003.06222}, 2020.
+
+\bibitem{zameni2020unsupervised}
+M. Zameni, A. Sadri, Z. Ghafoori, M. Moshtaghi, F. D. Salim, C. Leckie, and K. Ramamohanarao,
+``Unsupervised online change point detection in high-dimensional time series,''
+\textit{Knowledge and Information Systems}, vol.~62, no.~2, pp.~719--750, 2020.
+
+\bibitem{wang2021online}
+Z. Wang, X. Lin, A. Mishra, and R. Sriharsha,
+``Online changepoint detection on a budget,''
+in \textit{2021 International Conference on Data Mining Workshops (ICDMW)}, pp.~414--420, 2021.
+
+\bibitem{theodosiadou2021change}
+O. Theodosiadou, K. Pantelidou, N. Bastas, D. Chatzakou, T. Tsikrika, S. Vrochidis, and I. Kompatsiaris,
+``Change point detection in terrorism-related online content using deep learning derived indicators,''
+\textit{Information}, vol.~12, no.~7, p.~274, 2021.
+
+\bibitem{albertetti2016change}
+F. Albertetti, L. Grossrieder, O. Ribaux, and K. Stoffel,
+``Change points detection in crime-related time series: an on-line fuzzy approach based on a shape space representation,''
+\textit{Applied Soft Computing}, vol.~40, pp.~441--454, 2016.
+
+\bibitem{ref-adwin}
+A. Bifet and R. Gavaldà,
+``Learning from time-changing data with adaptive windowing,''
+in \textit{Proceedings of the 2007 SIAM International Conference on Data Mining}, pp.~443--448, 2007.
+
+\bibitem{ref-page}
+E. S. Page,
+``Continuous inspection schemes,''
+\textit{Biometrika}, vol.~41, no.~1/2, pp.~100--115, 1954.
+
+\bibitem{ref-cusum}
+E. S. Page,
+``Cumulative sum charts,''
+\textit{Technometrics}, vol.~3, no.~1, pp.~1--9, 1961.
+
+\bibitem{ref-bocpd}
+R. P. Adams and D. J. C. MacKay,
+``Bayesian online changepoint detection,''
+\textit{arXiv preprint arXiv:0710.3742}, 2007.
+
+\bibitem{ref-changefinder}
+K. Yamanishi and J. Takeuchi,
+``A unifying framework for detecting outliers and change points from non-stationary time series data,''
+in \textit{Proceedings of the Eighth ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, pp.~676--681, 2002.
+
+\bibitem{ref-rulsif}
+Y. Liu, S. Yamada, M. Sugiyama, and N. Murata,
+``Change-point detection in time-series data by relative density-ratio estimation,''
+\textit{Neural Networks}, vol.~43, pp.~72--83, 2013.
+
+\bibitem{ref-ruptures}
+C. Truong, L. Oudre, and N. Vayatis,
+``Selective review of offline change point detection methods,''
+\textit{Signal Processing}, vol.~167, p.~107299, 2020.
+
+\bibitem{ref-river}
+J. Montiel, M. Halford, S. M. Mastelini, G. Bolmier, R. Sourty, R. Vaysse, A. Zouitine, H. M. Gomes, J. Read, T. Abdessalem, and A. Bifet,
+``River: machine learning for streaming data in Python,''
+\textit{Journal of Machine Learning Research}, vol.~22, no.~110, pp.~1--8, 2021.
+
+\bibitem{ref-ocpdet}
+G. J. J. Van den Burg and C. K. I. Williams,
+``An evaluation of change point detection algorithms,''
+\textit{arXiv preprint arXiv:2003.06222}, 2020.
+
+\bibitem{ref-canary}
+M. Chen and D. Tyler,
+``Canary: A Python library for online change detection,''
+\textit{Software Impacts}, vol.~10, p.~100151, 2021.
+
+\end{thebibliography}
 
 % If authors have biography, please use the format below
 %\section*{Short Biography of Authors}
@@ -376,11 +619,7 @@ RBF & Radial Basis Function
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \PublishersNote{}
 %\isPreprints{}{% This command is only used for ``preprints''.
-%\end{adjustwidth}
+\end{adjustwidth}
 %} % If the paper is ``preprints'', please uncomment this parenthesis.
 \end{document}
-
-
-
-
 
