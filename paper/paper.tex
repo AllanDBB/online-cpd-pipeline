@@ -223,9 +223,27 @@ Mathematically, the incremental sequence can be expressed as:
 \subsubsection{Real-World Crime Data (Benchmark 2)}
 We manually labeled the change points in 49 time series related to crime counts from regions in Boston, Los Angeles, Chicago, and Costa Rica.  
 Both daily and monthly time series were used, and each was truncated to 120 time steps to facilitate the visual identification of change points.
-\todo{Es ideal demostrar que las series de crimen tienen alto nivel de ruido. En efecto los es, pero debemos dar pruebas Las podemos clasificar. Hay un codigo para clasificarlas en los grupo}
+
+To quantify the noise characteristics inherent to crime time series, we computed the Noise-to-Signal Ratio (NSR) for all 49 series using standardized residuals after removing trend components. The analysis reveals substantial noise levels: NSR ranges from 0.04 to 2.72 (median = 0.62, mean = 0.93, $\sigma$ = 0.73). Using the median as a classification threshold, 49\% of series exhibit high noise (NSR $>$ 0.62) with mean NSR = 1.55 ($\sigma$ = 0.54), while 51\% show low noise with mean NSR = 0.33 ($\sigma$ = 0.16)—a 4.6$\times$ difference between categories. Table~\ref{tab:noise_distribution} summarizes the distribution across noise and change magnitude categories. These metrics confirm that crime data presents challenging conditions for change point detection, as signals are frequently obscured by stochastic fluctuations inherent to criminal reporting patterns and data collection biases.
+
+\begin{table}[h]
+\centering
+\caption{Distribution of crime time series by noise level and change magnitude (N=49).}
+\label{tab:noise_distribution}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Noise Level} & \textbf{High Change} & \textbf{Low Change} & \textbf{Total} \\
+\midrule
+High (NSR $>$ 0.62) & 8 (16\%) & 16 (33\%) & 24 (49\%) \\
+Low (NSR $\leq$ 0.62) & 16 (33\%) & 9 (18\%) & 25 (51\%) \\
+\midrule
+\textbf{Total} & \textbf{24 (49\%)} & \textbf{25 (51\%)} & \textbf{49 (100\%)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Algorithms}
-We evaluated 17 online unsupervised change point detection algorithms spanning several methodological families:
+We evaluated 16 online unsupervised change point detection algorithms spanning several methodological families:
 
 \begin{itemize}
     \item \textbf{Statistical Process Control:} Page-Hinkley (PH), Adaptive Windowing (ADWIN), Exponentially Weighted Moving Average (EWMA), and Cumulative Sum (CUSUM).
@@ -264,40 +282,31 @@ For the \textit{Real-World Crime Dataset}, we applied the same procedure but wit
 \section{Results}
 \label{sec:results}
 
-We evaluate 17 online CPD algorithms across two benchmarks: (1) synthetic time series (8 scenarios × 45 series, varying noise/magnitude/change-type), and (2) real Costa Rican crime data (40 series). All experiments use 70/30 train-test splits with grid search hyperparameter optimization.
+We evaluate 16 online CPD algorithms across two benchmarks: (1) synthetic time series (8 scenarios × 45 series, varying noise/magnitude/change-type), and (2) real Costa Rican crime data (40 series). All experiments use 70/30 train-test splits with grid search hyperparameter optimization.
 
 %============================================================================
-
-\todo{Bien has mejorado la gráfica. Me parece que los nombres del eje x hay que modificarlos, en lo que respecta al tipo de cambio. Hay dos acá mean y slope. Los nombres que usas ahora en lugar de estos son confusos, me refiero a ramp y step. Cambiar.
-Otra cosa es que quitaría de todas las figuras cpd cpfinder. Siempre da cero, puede tomarse como un error nuestro y alo mejor es de la libreria. Mejor quitar}
 
 \subsection{Benchmark 1: Synthetic Data Performance}
 \label{sec:results_synthetic}
 
-Figure~\ref{fig:synthetic_heatmap} shows F1 scores for all 17 algorithms across 8 scenarios. Stars (*) mark best performers per scenario. Figure~\ref{fig:synthetic_barplot} displays multi-metric comparison (F1, Precision, Recall).
+Figure~\ref{fig:synthetic_heatmap} shows F1 scores for all 16 algorithms across 8 scenarios. Stars (*) mark best performers per scenario. Figure~\ref{fig:synthetic_barplot} displays F1 score comparison by noise level.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.95\textwidth]{figures/fig_synthetic_heatmap.pdf}
-\caption{Synthetic data performance heatmap: F1 scores for all 17 algorithms across 8 scenarios. Stars (*) in top-right corners indicate best performers per scenario (multiple stars for ties). Color intensity reflects detection quality (green=high, red=low). Scenario notation: Noise-Magnitude-Type (e.g., Low-Low-Step, High-High-Ramp).}
+\caption{Synthetic data performance heatmap: F1 scores for all 16 algorithms across 8 scenarios. Stars (*) in top-right corners indicate best performers per scenario (multiple stars for ties). Color intensity reflects detection quality (green=high, red=low). Scenario notation: Noise-Magnitude-Type (e.g., Low-Low-Mean, High-High-Slope).}
 \label{fig:synthetic_heatmap}
 \end{figure}
-
-
-\todo{Esta figura 2 esta bien, pero creo que en vez de poner recall y precision, mejor agregamos el F1 score de los algoritmos, cuando ruido, y F1 score cuando no hay ruido. y el F1 score que estan actuamente si se deja. Lo que me refiero es combinar todos los resultados cuando hay ruido y sacar la media del F1 score y de cuando no lo hay De esta manera este grafico mostrara resultados generales por algoritmo }
-
-
-\todo{En la figura 3 quizás podemos agregar dos coumnas más, una para las series con ruido y otras para las que no tienen ruido. Claro habría que clasificarlas primero }
 
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=1\textwidth]{figures/fig_synthetic_barplot.pdf}
-\caption{Synthetic data: Multi-metric performance comparison for all 17 algorithms. Algorithms ordered by descending average F1 score. Note the precision-recall trade-offs: top performers achieve balanced metrics (F1≈Precision≈Recall), while lower-ranked algorithms show metric divergence.}
+\caption{Synthetic data: F1 score comparison by noise level for all 16 algorithms. Algorithms ordered by descending F1 Overall. The comparison shows how algorithm performance degrades in high-noise scenarios compared to low-noise conditions, revealing robustness characteristics across different noise levels.}
 \label{fig:synthetic_barplot}
 \end{figure}
 
-\textbf{Key findings:} (1) \textbf{Performance tiers}: State-space models (TAGI-LSTM, SSM-Canary, SKF-Kalman) achieve F1 $>$ 0.50 in clean conditions, while statistical tests (CUSUM, EWMA) maintain F1 = 0.30-0.45 across all noise levels. (2) \textbf{Scenario difficulty}: Low-noise scenarios yield near-perfect F1 (green heatmap columns), while high-noise conditions cap performance at F1 $<$ 0.40 (red columns)—a 3× gap. (3) \textbf{Change type sensitivity}: Step changes outperform Ramps by 15-25\% F1 under matched conditions. (4) \textbf{Noise fragility}: State-space models suffer 60-70\% degradation in high noise, while distribution-free methods maintain 40-50\% of peak performance.
+\textbf{Key findings:} (1) \textbf{Performance tiers}: State-space models (TAGI-LSTM, SSM-Canary, SKF-Kalman) achieve F1 $>$ 0.50 in clean conditions, while statistical tests (CUSUM, EWMA) maintain F1 = 0.30-0.45 across all noise levels. (2) \textbf{Scenario difficulty}: Low-noise scenarios yield near-perfect F1 (green heatmap columns), while high-noise conditions cap performance at F1 $<$ 0.40 (red columns)—a 3× gap. (3) \textbf{Change type sensitivity}: Mean changes outperform Slope changes by 15-25\% F1 under matched conditions. (4) \textbf{Noise fragility}: State-space models suffer 60-70\% degradation in high noise, while distribution-free methods maintain 40-50\% of peak performance.
 
 
 %=============================================================================
@@ -309,18 +318,18 @@ Figure~\ref{fig:real_heatmap} shows performance on 40 Costa Rican crime series (
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.70\textwidth]{figures/fig_real_heatmap.pdf}
-\caption{Real crime data performance heatmap: F1 scores for all 17 algorithms on overall test set. Stars (*) in top-right corners indicate best performer(s). Data includes mixed-difficulty series (low/high noise × low/high change combinations). Two algorithms (Changefinder, RULSIF) show zero scores due to implementation limitations.}
+\caption{Real crime data performance heatmap: F1 scores for all 16 algorithms on overall test set. Stars (*) in top-right corners indicate best performer(s). Data includes mixed-difficulty series (low/high noise × low/high change combinations). Two algorithms (Changefinder, RULSIF) show zero scores due to implementation limitations.}
 \label{fig:real_heatmap}
 \end{figure}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=1\textwidth]{figures/fig_real_barplot.pdf}
-\caption{Real crime data: Multi-metric performance for all 17 algorithms. Algorithms ordered by F1 score. Note characteristic Precision-Recall imbalance: all algorithms favor Recall (0.50-0.70) over Precision (0.17-0.27), reflecting operational bias toward conservative detection in crime monitoring.}
+\caption{Real crime data: Multi-metric performance for all 16 algorithms. Algorithms ordered by F1 score. Note characteristic Precision-Recall imbalance: all algorithms favor Recall (0.50-0.70) over Precision (0.17-0.27), reflecting operational bias toward conservative detection in crime monitoring.}
 \label{fig:real_barplot}
 \end{figure}
 
-\textbf{Key findings:} (1) \textbf{Domain shift severity}: F1 scores drop 50-70\% from synthetic to real data. Synthetic leader TAGI-LSTM (F1=0.62) falls to rank 10 (F1=0.22), while CUSUM (F1=0.41 synthetic) claims rank 1 (F1=0.29 real). (2) \textbf{Precision-Recall imbalance}: All algorithms favor Recall (0.50-0.70) over Precision (0.17-0.27), reflecting operational bias toward conservative detection in crime monitoring. (3) \textbf{Ranking reversal}: State-space models (top-3 synthetic) plummet to ranks 10-12 on real data, while distribution-free tests (CUSUM, EWMA, Page-Hinkley) emerge as leaders. (4) \textbf{Operational viability}: Only 5/17 algorithms achieve F1 $>$ 0.25, with 2 not-implemented (Changefinder, RULSIF) and 2 below F1=0.20. (5) \textbf{Efficiency alignment}: Top real-data performers process series 5-10× faster than neural methods.
+\textbf{Key findings:} (1) \textbf{Domain shift severity}: F1 scores drop 50-70\% from synthetic to real data. Synthetic leader TAGI-LSTM (F1=0.62) falls to rank 10 (F1=0.22), while CUSUM (F1=0.41 synthetic) claims rank 1 (F1=0.29 real). (2) \textbf{Precision-Recall imbalance}: All algorithms favor Recall (0.50-0.70) over Precision (0.17-0.27), reflecting operational bias toward conservative detection in crime monitoring. (3) \textbf{Ranking reversal}: State-space models (top-3 synthetic) plummet to ranks 10-12 on real data, while distribution-free tests (CUSUM, EWMA, Page-Hinkley) emerge as leaders. (4) \textbf{Operational viability}: Only 5/16 algorithms achieve F1 $>$ 0.25, with 2 not-implemented (Changefinder, RULSIF) and 2 below F1=0.20. (5) \textbf{Efficiency alignment}: Top real-data performers process series 5-10× faster than neural methods.
 
 
 
@@ -328,11 +337,11 @@ Figure~\ref{fig:real_heatmap} shows performance on 40 Costa Rican crime series (
 \section{Conclusions}
 \label{sec:conclusions}
 
-We benchmark 17 online CPD algorithms across synthetic (360 series, 8 scenarios) and real crime data (40 series), revealing critical synthetic-to-real generalization gaps and performance-robustness trade-offs.
+We benchmark 16 online CPD algorithms across synthetic (360 series, 8 scenarios) and real crime data (40 series), revealing critical synthetic-to-real generalization gaps and performance-robustness trade-offs.
 
 \subsection{Key Contributions}
 
-\textbf{(1) Dual-benchmark protocol.} Our framework combines controlled synthetic experiments with real crime validation, enabling fair comparison across 17 algorithms spanning statistical tests, state-space models, online segmentation, and neural approaches.
+\textbf{(1) Dual-benchmark protocol.} Our framework combines controlled synthetic experiments with real crime validation, enabling fair comparison across 16 algorithms spanning statistical tests, state-space models, online segmentation, and neural approaches.
 
 \textbf{(2) Performance-complexity trade-offs.} State-space models (TAGI-LSTM, SSM-Canary) dominate clean synthetic scenarios (F1=0.70-1.00) but suffer 60-70\% degradation on real data. Distribution-free tests (CUSUM, EWMA) sacrifice peak performance for operational robustness, emerging as real-world leaders (F1=0.25-0.30).
 

@@ -331,7 +331,7 @@ def generate_synthetic_heatmap():
     # Create scenario labels in English
     noise_map = {'bajo': 'Low', 'medio': 'Med', 'alto': 'High'}
     magnitude_map = {'bajo': 'Low', 'alto': 'High', 'pequeño': 'Small', 'mediano': 'Med', 'grande': 'Large'}
-    change_map = {'escalon': 'Step', 'pendiente': 'Ramp', 'abrupto': 'Abrupt', 'gradual': 'Gradual'}
+    change_map = {'escalon': 'Mean', 'pendiente': 'Slope', 'abrupto': 'Abrupt', 'gradual': 'Gradual'}
     
     df_ok['scenario'] = df_ok.apply(
         lambda row: f"{noise_map.get(row['nivel_ruido'], row['nivel_ruido'])}-"
@@ -340,8 +340,8 @@ def generate_synthetic_heatmap():
         axis=1
     )
     
-    # Get ALL 17 algorithms
-    df_filtered = df_ok.copy()
+    # Filter out bayesian_online_cpd_cpfinder
+    df_filtered = df_ok[df_ok['algorithm_key'] != 'bayesian_online_cpd_cpfinder'].copy()
     
     # Create pivot table
     pivot = df_filtered.pivot_table(values='test_f1_mean', index='algorithm_key', columns='scenario', aggfunc='mean')
@@ -392,7 +392,10 @@ def generate_real_heatmap():
     df_results = pd.read_csv(REAL_CSV)
     df_classif = pd.read_csv(CLASSIFICATION_CSV)
     
-    # Get ALL 17 algorithms
+    # Filter out bayesian_online_cpd_cpfinder
+    df_results = df_results[df_results['algorithm_key'] != 'bayesian_online_cpd_cpfinder'].copy()
+    
+    # Get all algorithms
     all_algorithms = df_results['algorithm_key'].unique()
     
     # Separate OK and not implemented
@@ -463,19 +466,35 @@ def generate_real_heatmap():
     print("✓ Real data heatmap with stars")
 
 def generate_synthetic_barplot():
-    """Generate bar plot comparing F1, Precision, Recall for ALL 17 algorithms on synthetic data."""
-    print("Generating synthetic data bar plot...")
+    """Generate bar plot comparing F1 Overall, F1 High Noise, F1 Low Noise for all algorithms."""
+    print("Generating synthetic bar plot with noise comparison...")
     
     df = pd.read_csv(SYNTHETIC_CSV)
+    
+    # Filter out bayesian_online_cpd_cpfinder
+    df = df[df['algorithm_key'] != 'bayesian_online_cpd_cpfinder'].copy()
     df_ok = df[df['status'] == 'ok'].copy()
     
-    # Get ALL algorithms sorted by F1
-    algo_f1 = df_ok.groupby('algorithm_key')['test_f1_mean'].mean().sort_values(ascending=False)
-    all_algos = algo_f1.index.tolist()
+    # Calculate F1 overall (promedio general)
+    f1_overall = df_ok.groupby('algorithm_key')['test_f1_mean'].mean()
     
-    # Calculate means for all algorithms
-    metrics = df_ok.groupby('algorithm_key')[['test_f1_mean', 'test_precision_mean', 'test_recall_mean']].mean()
-    metrics = metrics.reindex(all_algos)  # Sort by F1
+    # Calculate F1 for high noise scenarios
+    df_high_noise = df_ok[df_ok['nivel_ruido'] == 'alto'].copy()
+    f1_high_noise = df_high_noise.groupby('algorithm_key')['test_f1_mean'].mean()
+    
+    # Calculate F1 for low noise scenarios
+    df_low_noise = df_ok[df_ok['nivel_ruido'] == 'bajo'].copy()
+    f1_low_noise = df_low_noise.groupby('algorithm_key')['test_f1_mean'].mean()
+    
+    # Combine into dataframe
+    metrics = pd.DataFrame({
+        'F1 Overall': f1_overall,
+        'F1 High Noise': f1_high_noise,
+        'F1 Low Noise': f1_low_noise
+    })
+    
+    # Sort by F1 Overall
+    metrics = metrics.sort_values('F1 Overall', ascending=False)
     
     # Create bar plot
     fig, ax = plt.subplots(figsize=(14, 6))
@@ -483,13 +502,13 @@ def generate_synthetic_barplot():
     x = np.arange(len(metrics))
     width = 0.25
     
-    ax.bar(x - width, metrics['test_f1_mean'], width, label='F1', color='#2ecc71', alpha=0.8)
-    ax.bar(x, metrics['test_precision_mean'], width, label='Precision', color='#3498db', alpha=0.8)
-    ax.bar(x + width, metrics['test_recall_mean'], width, label='Recall', color='#e74c3c', alpha=0.8)
+    ax.bar(x - width, metrics['F1 Overall'], width, label='F1 Overall', color='#2ecc71', alpha=0.8)
+    ax.bar(x, metrics['F1 High Noise'], width, label='F1 High Noise', color='#e74c3c', alpha=0.8)
+    ax.bar(x + width, metrics['F1 Low Noise'], width, label='F1 Low Noise', color='#3498db', alpha=0.8)
     
     ax.set_xlabel('Algorithm', fontweight='bold', fontsize=16)
-    ax.set_ylabel('Score', fontweight='bold', fontsize=16)
-    ax.set_title('Synthetic Data: All Algorithms - Multi-Metric Comparison', fontweight='bold', pad=20, fontsize=16)
+    ax.set_ylabel('F1 Score', fontweight='bold', fontsize=16)
+    ax.set_title('Synthetic Data: F1 Score Comparison by Noise Level', fontweight='bold', pad=20, fontsize=16)
     ax.set_xticks(x)
     ax.set_xticklabels(metrics.index, rotation=45, ha='right', fontsize=16)
     ax.legend(loc='upper right', fontsize=16)
@@ -503,15 +522,18 @@ def generate_synthetic_barplot():
     plt.savefig(os.path.join(FIGURES_DIR, 'fig_synthetic_barplot.png'), bbox_inches='tight', dpi=300)
     plt.close()
     
-    print("✓ Synthetic bar plot")
+    print("✓ Synthetic bar plot with noise comparison")
 
 def generate_real_barplot():
-    """Generate bar plot comparing F1, Precision, Recall for ALL 17 algorithms on real data."""
+    """Generate bar plot comparing F1, Precision, Recall for ALL algorithms on real data."""
     print("Generating real data bar plot...")
     
     df = pd.read_csv(REAL_CSV)
     
-    # Get ALL 17 algorithms from the file (including not_implemented)
+    # Filter out bayesian_online_cpd_cpfinder
+    df = df[df['algorithm_key'] != 'bayesian_online_cpd_cpfinder'].copy()
+    
+    # Get all algorithms from the file (including not_implemented)
     all_algorithms = df['algorithm_key'].unique().tolist()
     
     # Separate OK and not implemented
