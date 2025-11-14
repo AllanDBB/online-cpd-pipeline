@@ -26,7 +26,7 @@ def create_noise_comparison_figure(save_path="paper/figures/fig_intro_noise_comp
     tipo_cambio = 'escalon'  # Step changes are clearer to visualize
     
     # Generate base series with LOW noise
-    nivel_ruido_bajo = 0.2
+    nivel_ruido_bajo = 1.2
     serie_bajo_ruido, puntos_cambio = generar_serie_sintetica(
         longitud=longitud,
         nivel_ruido=nivel_ruido_bajo,
@@ -72,7 +72,7 @@ def create_noise_comparison_figure(save_path="paper/figures/fig_intro_noise_comp
                    alpha=0.8, label='Change point' if cp == puntos_cambio[0] else '')
     ax2.set_xlabel('Time', fontsize=12)
     ax2.set_ylabel('Value', fontsize=12)
-    ax2.set_title('(b) Low Noise (σ = 0.2)', fontsize=13, fontweight='bold')
+    ax2.set_title('(b) Low Noise (σ = 1.2)', fontsize=13, fontweight='bold')
     ax2.grid(True, alpha=0.3)
     ax2.legend(loc='upper right', fontsize=10)
     
