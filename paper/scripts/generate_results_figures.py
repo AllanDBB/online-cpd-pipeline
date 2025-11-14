@@ -386,54 +386,74 @@ def generate_synthetic_heatmap():
     print("✓ Synthetic heatmap with stars")
 
 def generate_real_heatmap():
-    """Generate heatmap for real data categorized by noise and change level."""
-    print("Generating real data heatmap...")
+    """Generate heatmap for real data with separate columns for high/low noise."""
+    print("Generating real data heatmap with noise stratification...")
     
-    df_results = pd.read_csv(REAL_CSV)
-    df_classif = pd.read_csv(CLASSIFICATION_CSV)
+    import json
     
-    # Filter out bayesian_online_cpd_cpfinder
-    df_results = df_results[df_results['algorithm_key'] != 'bayesian_online_cpd_cpfinder'].copy()
+    # Load detailed results from JSON file
+    json_path = r"c:\Users\allan\Documents\GitHub\online-cpd-pipeline\results\results_real\11-14-2025-best_series_analysis_real_data.json"
+    with open(json_path, 'r') as f:
+        data = json.load(f)
     
-    # Get all algorithms
-    all_algorithms = df_results['algorithm_key'].unique()
+    # Extract results for each algorithm
+    results_by_algo = {}
+    not_implemented = set()
     
-    # Separate OK and not implemented
-    df_ok = df_results[df_results['status'] == 'ok'].copy()
-    df_not_impl = df_results[df_results['status'] == 'not_implemented'].copy()
+    for result in data['results']:
+        algo_key = result['algorithm_key']
+        
+        # Skip bayesian_online_cpd_cpfinder
+        if algo_key == 'bayesian_online_cpd_cpfinder':
+            continue
+        
+        detailed_results = result.get('detailed_test_results', [])
+        
+        if not detailed_results:
+            # Algorithm not implemented
+            not_implemented.add(algo_key)
+            continue
+        
+        # Separate by noise level
+        high_noise_f1 = []
+        low_noise_f1 = []
+        all_f1 = []
+        
+        for series_result in detailed_results:
+            f1 = series_result['f1']
+            all_f1.append(f1)
+            
+            noise_cat = series_result.get('clasificacion_categoria_ruido', 'unknown')
+            if noise_cat == 'alto':
+                high_noise_f1.append(f1)
+            elif noise_cat == 'bajo':
+                low_noise_f1.append(f1)
+        
+        results_by_algo[algo_key] = {
+            'Overall': np.mean(all_f1) if all_f1 else 0.0,
+            'High Noise': np.mean(high_noise_f1) if high_noise_f1 else 0.0,
+            'Low Noise': np.mean(low_noise_f1) if low_noise_f1 else 0.0
+        }
     
-    # Get category distribution from classification data
-    category_counts = df_classif.groupby(['categoria_ruido', 'categoria_cambio']).size()
-    
-    # Create categories list
-    categories = []
-    for (ruido, cambio), count in category_counts.items():
-        categories.append(f"{ruido}-{cambio}")
-    
-    # Create a simple pivot table with overall performance
-    pivot = df_ok.pivot_table(values='test_f1_mean', index='algorithm_key', columns='annotator', aggfunc='mean')
+    # Create DataFrame for heatmap
+    pivot = pd.DataFrame(results_by_algo).T
+    pivot = pivot[['Overall', 'High Noise', 'Low Noise']]  # Reorder columns
     
     # Add not implemented algorithms with 0 values
-    for algo in df_not_impl['algorithm_key'].unique():
-        pivot.loc[algo] = 0.0
+    for algo in not_implemented:
+        pivot.loc[algo] = [0.0, 0.0, 0.0]
     
-    # Rename to English
-    pivot.columns = ['Overall Performance']
-    
-    # Add info about data composition to title
-    if len(categories) > 1:
-        category_info = f" (Data includes: {', '.join(categories)} series)"
-    else:
-        category_info = ""
+    # Sort by overall performance
+    pivot = pivot.sort_values('Overall', ascending=False)
     
     # Find best F1 score per column (to handle ties)
     best_scores_per_col = pivot.max(axis=0)
     
     # Create heatmap - Custom Orange to Green gradient
-    fig, ax = plt.subplots(figsize=(8, 10))
+    fig, ax = plt.subplots(figsize=(12, 10))
     hm = sns.heatmap(pivot, annot=True, fmt='.2f', cmap=cmap_orange_green, center=0.25,
                 cbar_kws={'label': 'F1 Score'}, linewidths=0.5, ax=ax, 
-                annot_kws={'fontsize': 16, 'fontweight': 'bold', 'color': 'black'})
+                annot_kws={'fontsize': 14, 'fontweight': 'bold', 'color': 'black'})
     
     # Increase colorbar tick label size
     cbar = hm.collections[0].colorbar
@@ -450,20 +470,20 @@ def generate_real_heatmap():
             ax.plot(col_idx + 0.85, row_idx + 0.25, marker='*', markersize=12,
                     color='black', markeredgecolor='black', markeredgewidth=1.0, zorder=10)
     
-    ax.set_title(f'Real Crime Data: Algorithm Performance{category_info} (* = Best)',
+    ax.set_title('Real Crime Data: Algorithm Performance by Noise Level (* = Best)',
                  fontweight='bold', pad=20, fontsize=16)
-    ax.set_xlabel('Performance Metric', fontweight='bold', fontsize=16)
+    ax.set_xlabel('Noise Category', fontweight='bold', fontsize=16)
     ax.set_ylabel('Algorithm', fontweight='bold', fontsize=16)
     
-    plt.yticks(rotation=0, fontsize=16)
-    plt.xticks(fontsize=16)
+    plt.yticks(rotation=0, fontsize=14)
+    plt.xticks(fontsize=14)
     plt.tight_layout()
     
     plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_heatmap.pdf'), bbox_inches='tight')
     plt.savefig(os.path.join(FIGURES_DIR, 'fig_real_heatmap.png'), bbox_inches='tight', dpi=300)
     plt.close()
     
-    print("✓ Real data heatmap with stars")
+    print("✓ Real data heatmap with noise stratification and stars")
 
 def generate_synthetic_barplot():
     """Generate bar plot comparing F1 Overall, F1 High Noise, F1 Low Noise for all algorithms."""

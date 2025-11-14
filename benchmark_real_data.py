@@ -579,20 +579,20 @@ ALGORITHM_TEMPLATES: List[Dict[str, Any]] = [
         "library": "ChangeFinder",
         "method": "changefinder",
         "detect_fn": detect_changepoints_changefinder,
-        "implemented": False,  # Temporarily disabled due to numerical issues
+        "implemented": True,
         "supervision": "no_supervisado",
         "is_univariate": True,
-        "notes": "ChangeFinder SDAR - DISABLED due to numerical warnings.",
+        "notes": "ChangeFinder SDAR.",
     },
     {
         "key": "rulsif_roerich",
         "library": "RuLSIF",
         "method": "Roerich",
         "detect_fn": detect_changepoints_rulsif,
-        "implemented": False,  # Temporarily disabled due to hanging
+        "implemented": True,
         "supervision": "no_supervisado",
         "is_univariate": False,
-        "notes": "Roerich Online NN RuLSIF - DISABLED due to hanging issues.",
+        "notes": "Roerich Online NN RuLSIF.",
     },
 ]
 

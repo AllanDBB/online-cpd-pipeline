@@ -6,7 +6,7 @@
     "delta_eval": 10,
     "seed": 123,
     "profile": "quick",
-    "timestamp": "10-31-2025"
+    "timestamp": "11-14-2025"
   },
   "results": [
     {
@@ -364,7 +364,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:02.507465"
+      "timestamp": "2025-11-14T15:23:54.480244"
     },
     {
       "combo_key": "real_data_all_adwin_river",
@@ -723,7 +723,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:04.030667"
+      "timestamp": "2025-11-14T15:23:55.408665"
     },
     {
       "combo_key": "real_data_all_ewma_numpy",
@@ -1080,7 +1080,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:04.777854"
+      "timestamp": "2025-11-14T15:23:55.820225"
     },
     {
       "combo_key": "real_data_all_changepoint_online_focus",
@@ -1437,7 +1437,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:09.320880"
+      "timestamp": "2025-11-14T15:24:00.036194"
     },
     {
       "combo_key": "real_data_all_changepoint_online_gaussian",
@@ -1794,7 +1794,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:10.680773"
+      "timestamp": "2025-11-14T15:24:01.222391"
     },
     {
       "combo_key": "real_data_all_changepoint_online_np_focus",
@@ -2151,7 +2151,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:11.289004"
+      "timestamp": "2025-11-14T15:24:01.741311"
     },
     {
       "combo_key": "real_data_all_changepoint_online_md_focus",
@@ -2508,7 +2508,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:11.769240"
+      "timestamp": "2025-11-14T15:24:02.215633"
     },
     {
       "combo_key": "real_data_all_ocpdet_cumsum",
@@ -2865,7 +2865,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:11.878429"
+      "timestamp": "2025-11-14T15:24:02.332712"
     },
     {
       "combo_key": "real_data_all_ocpdet_ewma",
@@ -3222,7 +3222,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:12.073969"
+      "timestamp": "2025-11-14T15:24:02.506074"
     },
     {
       "combo_key": "real_data_all_ocpdet_two_sample_tests",
@@ -3580,7 +3580,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:11:18.609491"
+      "timestamp": "2025-11-14T15:24:07.309492"
     },
     {
       "combo_key": "real_data_all_ocpdet_neural_networks",
@@ -3942,7 +3942,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:12:21.711221"
+      "timestamp": "2025-11-14T15:25:13.106114"
     },
     {
       "combo_key": "real_data_all_ssm_canary",
@@ -4300,7 +4300,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:12:27.549198"
+      "timestamp": "2025-11-14T15:25:17.755168"
     },
     {
       "combo_key": "real_data_all_tagi_lstm_ssm",
@@ -4659,7 +4659,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:12:44.272472"
+      "timestamp": "2025-11-14T15:25:28.502461"
     },
     {
       "combo_key": "real_data_all_skf_kalman_canary",
@@ -5017,7 +5017,7 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:12:50.136750"
+      "timestamp": "2025-11-14T15:25:33.223641"
     },
     {
       "combo_key": "real_data_all_bayesian_online_cpd_cpfinder",
@@ -5377,7 +5377,727 @@
           "clasificacion_tipo_cambio": "pendiente"
         }
       ],
-      "timestamp": "2025-10-31T14:14:07.713116"
+      "timestamp": "2025-11-14T15:26:35.448824"
+    },
+    {
+      "combo_key": "real_data_all_changefinder_sdar",
+      "annotator": "all",
+      "algorithm_key": "changefinder_sdar",
+      "algorithm_library": "ChangeFinder",
+      "algorithm_method": "changefinder",
+      "best_params": {
+        "r": 0.3,
+        "order": 1,
+        "smooth": 5,
+        "threshold": 2.0,
+        "min_distance": 20
+      },
+      "best_params_json": "{\"min_distance\": 20, \"order\": 1, \"r\": 0.3, \"smooth\": 5, \"threshold\": 2.0}",
+      "train_performance": {
+        "f1_mean": 0.07428571428571429,
+        "precision_mean": 0.10952380952380951,
+        "recall_mean": 0.06428571428571428,
+        "mmd_mean": 1.0255973001357905,
+        "mttd_mean": 3.0,
+        "series_count": 35
+      },
+      "test_performance": {
+        "f1_mean": 0.1357142857142857,
+        "precision_mean": 0.2857142857142857,
+        "recall_mean": 0.08928571428571427,
+        "mmd_mean": 1.0929939462350766,
+        "mttd_mean": 4.5,
+        "detections_mean": 1.0,
+        "tp_mean": 0.2857142857142857,
+        "fp_mean": 0.7142857142857143,
+        "fn_mean": 1.5714285714285714,
+        "series_count": 14
+      },
+      "dataset_info": {
+        "train_series": 35,
+        "test_series": 14,
+        "total_train_length": 4200,
+        "total_test_length": 1680,
+        "total_train_changepoints": 47,
+        "total_test_changepoints": 26
+      },
+      "clasificacion_info": {
+        "total_series": 49,
+        "series_clasificadas": 49,
+        "distribucion_tipo_cambio": {
+          "pendiente": 22,
+          "sin_cambio": 17,
+          "mean": 10
+        },
+        "distribucion_categoria_ruido": {
+          "bajo": 25,
+          "alto": 24
+        },
+        "distribucion_categoria_cambio": {
+          "bajo": 25,
+          "alto": 24
+        },
+        "umbral_ruido": 0.6236753511717869,
+        "umbral_cambio": 0.25157741446482584
+      },
+      "detailed_test_results": [
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s35_2025-09-26T14-04-28.csv",
+          "annotator": "martin",
+          "series_id": 35,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 1.1537375776768568,
+          "clasificacion_cambio": 1.0790878838755362,
+          "clasificacion_categoria_ruido": "alto",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "mean"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s45_2025-09-26T14-03-57.csv",
+          "annotator": "martin",
+          "series_id": 45,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 3,
+          "mmd": 1.2523193702476352,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.13193216948660255,
+          "clasificacion_cambio": 0.15373919607534742,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s47_2025-09-26T14-04-10.csv",
+          "annotator": "martin",
+          "series_id": 47,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 2,
+          "mmd": 1.2591765309234173,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 2,
+          "series_length": 120,
+          "clasificacion_ruido": 0.21633279444371975,
+          "clasificacion_cambio": 0.06003612894953547,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s1_2025-09-26T14-04-20.csv",
+          "annotator": "martin",
+          "series_id": 1,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 0.578004919065083,
+          "clasificacion_cambio": 0.703187956329534,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "mean"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s41_2025-09-26T14-03-58.csv",
+          "annotator": "martin",
+          "series_id": 41,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.8516368468713972,
+          "mttd": 1.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.2783296708024571,
+          "clasificacion_cambio": 1.0329802212114179,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "mean"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s42_2025-09-26T14-03-42.csv",
+          "annotator": "martin",
+          "series_id": 42,
+          "f1": 0.4,
+          "precision": 1.0,
+          "recall": 0.25,
+          "tp": 1,
+          "fp": 0,
+          "fn": 3,
+          "mmd": 0.8017269341322145,
+          "mttd": 8.0,
+          "detections": 1,
+          "true_changepoints": 4,
+          "series_length": 120,
+          "clasificacion_ruido": 0.2425588000645993,
+          "clasificacion_cambio": 0.5414320299233902,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s32_2025-09-26T14-03-38.csv",
+          "annotator": "martin",
+          "series_id": 32,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 4,
+          "mmd": 1.3290120351496222,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 4,
+          "series_length": 120,
+          "clasificacion_ruido": 0.500586114829074,
+          "clasificacion_cambio": 0.046553355500844495,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s2_2025-09-26T14-03-48.csv",
+          "annotator": "martin",
+          "series_id": 2,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.7822609896903617,
+          "mttd": 6.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.5438044868285458,
+          "clasificacion_cambio": 0.4479419544843186,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s28_2025-09-26T14-04-26.csv",
+          "annotator": "martin",
+          "series_id": 28,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 0,
+          "series_length": 120,
+          "clasificacion_ruido": 1.8316875237794779,
+          "clasificacion_cambio": 0.0,
+          "clasificacion_categoria_ruido": "alto",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "sin_cambio"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s46_2025-09-26T14-04-29.csv",
+          "annotator": "martin",
+          "series_id": 46,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 0,
+          "series_length": 120,
+          "clasificacion_ruido": 0.3526690522813216,
+          "clasificacion_cambio": 0.0,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "sin_cambio"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s43_2025-09-26T14-04-33.csv",
+          "annotator": "martin",
+          "series_id": 43,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 0.27973691591847344,
+          "clasificacion_cambio": 1.275285240552416,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s38_2025-09-26T14-03-43.csv",
+          "annotator": "martin",
+          "series_id": 38,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.7656237084132294,
+          "mttd": 3.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.44042573314245065,
+          "clasificacion_cambio": 0.8941898271499944,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s13_2025-09-26T14-04-32.csv",
+          "annotator": "martin",
+          "series_id": 13,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 0,
+          "series_length": 120,
+          "clasificacion_ruido": 1.4139171772056762,
+          "clasificacion_cambio": 0.0,
+          "clasificacion_categoria_ruido": "alto",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "sin_cambio"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s6_2025-09-26T14-04-04.csv",
+          "annotator": "martin",
+          "series_id": 6,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 0.035515009940392236,
+          "clasificacion_cambio": 1.4008597148364996,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        }
+      ],
+      "timestamp": "2025-11-14T15:26:35.546162"
+    },
+    {
+      "combo_key": "real_data_all_rulsif_roerich",
+      "annotator": "all",
+      "algorithm_key": "rulsif_roerich",
+      "algorithm_library": "RuLSIF",
+      "algorithm_method": "Roerich",
+      "best_params": {
+        "window_size": 5,
+        "lag_size": 40,
+        "step": 1,
+        "n_epochs": 1,
+        "threshold": 0.08,
+        "min_distance": 20,
+        "alpha": 0.05
+      },
+      "best_params_json": "{\"alpha\": 0.05, \"lag_size\": 40, \"min_distance\": 20, \"n_epochs\": 1, \"step\": 1, \"threshold\": 0.08, \"window_size\": 5}",
+      "train_performance": {
+        "f1_mean": 0.16095238095238096,
+        "precision_mean": 0.2571428571428571,
+        "recall_mean": 0.12857142857142856,
+        "mmd_mean": 0.932224426104113,
+        "mttd_mean": 4.555555555555555,
+        "series_count": 35
+      },
+      "test_performance": {
+        "f1_mean": 0.21904761904761902,
+        "precision_mean": 0.42857142857142855,
+        "recall_mean": 0.14880952380952378,
+        "mmd_mean": 0.9978309862315713,
+        "mttd_mean": 3.1666666666666665,
+        "detections_mean": 0.9285714285714286,
+        "tp_mean": 0.42857142857142855,
+        "fp_mean": 0.5,
+        "fn_mean": 1.4285714285714286,
+        "series_count": 14
+      },
+      "dataset_info": {
+        "train_series": 35,
+        "test_series": 14,
+        "total_train_length": 4200,
+        "total_test_length": 1680,
+        "total_train_changepoints": 47,
+        "total_test_changepoints": 26
+      },
+      "clasificacion_info": {
+        "total_series": 49,
+        "series_clasificadas": 49,
+        "distribucion_tipo_cambio": {
+          "pendiente": 22,
+          "sin_cambio": 17,
+          "mean": 10
+        },
+        "distribucion_categoria_ruido": {
+          "bajo": 25,
+          "alto": 24
+        },
+        "distribucion_categoria_cambio": {
+          "bajo": 25,
+          "alto": 24
+        },
+        "umbral_ruido": 0.6236753511717869,
+        "umbral_cambio": 0.25157741446482584
+      },
+      "detailed_test_results": [
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s35_2025-09-26T14-04-28.csv",
+          "annotator": "martin",
+          "series_id": 35,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 1.1537375776768568,
+          "clasificacion_cambio": 1.0790878838755362,
+          "clasificacion_categoria_ruido": "alto",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "mean"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s45_2025-09-26T14-03-57.csv",
+          "annotator": "martin",
+          "series_id": 45,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.6223358063889031,
+          "mttd": 2.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.13193216948660255,
+          "clasificacion_cambio": 0.15373919607534742,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s47_2025-09-26T14-04-10.csv",
+          "annotator": "martin",
+          "series_id": 47,
+          "f1": 0.6666666666666666,
+          "precision": 1.0,
+          "recall": 0.5,
+          "tp": 1,
+          "fp": 0,
+          "fn": 1,
+          "mmd": 0.9450585912979417,
+          "mttd": 4.0,
+          "detections": 1,
+          "true_changepoints": 2,
+          "series_length": 120,
+          "clasificacion_ruido": 0.21633279444371975,
+          "clasificacion_cambio": 0.06003612894953547,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s1_2025-09-26T14-04-20.csv",
+          "annotator": "martin",
+          "series_id": 1,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 0.578004919065083,
+          "clasificacion_cambio": 0.703187956329534,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "mean"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s41_2025-09-26T14-03-58.csv",
+          "annotator": "martin",
+          "series_id": 41,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.8432863339838248,
+          "mttd": 0.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.2783296708024571,
+          "clasificacion_cambio": 1.0329802212114179,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "mean"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s42_2025-09-26T14-03-42.csv",
+          "annotator": "martin",
+          "series_id": 42,
+          "f1": 0.4,
+          "precision": 1.0,
+          "recall": 0.25,
+          "tp": 1,
+          "fp": 0,
+          "fn": 3,
+          "mmd": 0.7871732779065502,
+          "mttd": 7.0,
+          "detections": 1,
+          "true_changepoints": 4,
+          "series_length": 120,
+          "clasificacion_ruido": 0.2425588000645993,
+          "clasificacion_cambio": 0.5414320299233902,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s32_2025-09-26T14-03-38.csv",
+          "annotator": "martin",
+          "series_id": 32,
+          "f1": 0,
+          "precision": 0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 0,
+          "fn": 4,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 0,
+          "true_changepoints": 4,
+          "series_length": 120,
+          "clasificacion_ruido": 0.500586114829074,
+          "clasificacion_cambio": 0.046553355500844495,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s2_2025-09-26T14-03-48.csv",
+          "annotator": "martin",
+          "series_id": 2,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.7624414189815711,
+          "mttd": 4.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.5438044868285458,
+          "clasificacion_cambio": 0.4479419544843186,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s28_2025-09-26T14-04-26.csv",
+          "annotator": "martin",
+          "series_id": 28,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 0,
+          "series_length": 120,
+          "clasificacion_ruido": 1.8316875237794779,
+          "clasificacion_cambio": 0.0,
+          "clasificacion_categoria_ruido": "alto",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "sin_cambio"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s46_2025-09-26T14-04-29.csv",
+          "annotator": "martin",
+          "series_id": 46,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 0,
+          "series_length": 120,
+          "clasificacion_ruido": 0.3526690522813216,
+          "clasificacion_cambio": 0.0,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "sin_cambio"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s43_2025-09-26T14-04-33.csv",
+          "annotator": "martin",
+          "series_id": 43,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 0.27973691591847344,
+          "clasificacion_cambio": 1.275285240552416,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s38_2025-09-26T14-03-43.csv",
+          "annotator": "martin",
+          "series_id": 38,
+          "f1": 0.5,
+          "precision": 1.0,
+          "recall": 0.3333333333333333,
+          "tp": 1,
+          "fp": 0,
+          "fn": 2,
+          "mmd": 0.7491795468200118,
+          "mttd": 2.0,
+          "detections": 1,
+          "true_changepoints": 3,
+          "series_length": 120,
+          "clasificacion_ruido": 0.44042573314245065,
+          "clasificacion_cambio": 0.8941898271499944,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s13_2025-09-26T14-04-32.csv",
+          "annotator": "martin",
+          "series_id": 13,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "mmd": 1.0,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 0,
+          "series_length": 120,
+          "clasificacion_ruido": 1.4139171772056762,
+          "clasificacion_cambio": 0.0,
+          "clasificacion_categoria_ruido": "alto",
+          "clasificacion_categoria_cambio": "bajo",
+          "clasificacion_tipo_cambio": "sin_cambio"
+        },
+        {
+          "filename": "serie_etiquetada_Mart_n_Sol_s_Salazar_datasAll-s6_2025-09-26T14-04-04.csv",
+          "annotator": "martin",
+          "series_id": 6,
+          "f1": 0,
+          "precision": 0.0,
+          "recall": 0.0,
+          "tp": 0,
+          "fp": 1,
+          "fn": 1,
+          "mmd": 1.3150397079657992,
+          "mttd": null,
+          "detections": 1,
+          "true_changepoints": 1,
+          "series_length": 120,
+          "clasificacion_ruido": 0.035515009940392236,
+          "clasificacion_cambio": 1.4008597148364996,
+          "clasificacion_categoria_ruido": "bajo",
+          "clasificacion_categoria_cambio": "alto",
+          "clasificacion_tipo_cambio": "pendiente"
+        }
+      ],
+      "timestamp": "2025-11-14T15:26:41.659874"
     }
   ]
 }
